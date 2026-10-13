@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
   contactInitials,
@@ -15,6 +16,15 @@ import {
   type FileAccessRow,
 } from "@/lib/shares";
 import { useVault } from "@/lib/vault/VaultProvider";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export function ShareModal({
   file,
@@ -54,17 +64,6 @@ export function ShareModal({
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, file.id]);
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        if (pickerOpen) setPickerOpen(false);
-        else onClose();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, pickerOpen]);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -133,50 +132,40 @@ export function ShareModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(20,24,30,0.4)] p-5 backdrop-blur-[2px]"
-      role="presentation"
-      onClick={onClose}
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Share file"
-        className="w-full max-w-[440px] overflow-hidden rounded-2xl border border-[#e6e8eb] bg-white shadow-[0_24px_64px_rgba(16,24,40,0.18)]"
-        onClick={(e) => e.stopPropagation()}
+      <DialogContent
+        showCloseButton
+        className="z-[70] gap-0 overflow-visible p-0 sm:max-w-[440px]"
+        overlayClassName="z-[70] bg-black/40 supports-backdrop-filter:backdrop-blur-[2px]"
       >
-        <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-4">
-          <div className="min-w-0">
-            <h3 className="text-[17px] font-semibold tracking-tight text-app-text">
-              Share file
-            </h3>
-            <p className="mt-1 truncate text-[13px] text-app-muted">
-              {file.originalName}
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-lg text-app-muted hover:bg-[#f0f2f4]"
-          >
-            ×
-          </button>
-        </div>
+        <DialogHeader className="gap-1 border-b border-border px-5 py-4 text-left">
+          <DialogTitle className="text-[17px] font-semibold tracking-tight">
+            Share file
+          </DialogTitle>
+          <DialogDescription className="truncate text-[13px]">
+            {file.originalName}
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="space-y-4 px-5 pb-5">
-          <p className="text-[13px] leading-5 text-app-muted">
+        <div className="space-y-4 px-5 py-4">
+          <p className="text-[13px] leading-5 text-muted-foreground">
             Re-wraps the file key to their public key in your browser. Recipients
             must already be in Keys.
           </p>
 
           <form onSubmit={(e) => void onShare(e)} className="space-y-3">
             <div ref={pickerRef} className="relative">
-              <label className="mb-1.5 block text-[12px] font-medium text-app-muted">
+              <label className="mb-1.5 block text-[12px] font-medium text-muted-foreground">
                 Add people
               </label>
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 aria-expanded={pickerOpen}
                 aria-haspopup="listbox"
                 disabled={contacts.length === 0}
@@ -184,73 +173,60 @@ export function ShareModal({
                   setPickerOpen((v) => !v);
                   window.setTimeout(() => searchRef.current?.focus(), 0);
                 }}
-                className="flex w-full items-center gap-3 rounded-xl border border-[#d8dce2] bg-[#fafbfc] px-3 py-2.5 text-left transition hover:border-[#c5cad3] hover:bg-white focus:border-app-focus focus:bg-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-auto w-full justify-start gap-3 px-3 py-2.5"
               >
                 {selected ? (
                   <>
                     <span
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-app-text"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
                       style={{
                         background: `oklch(0.9 0.05 ${selected.hue})`,
                       }}
                     >
                       {contactInitials(selected.name)}
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-app-text">
+                    <span className="min-w-0 flex-1 text-left">
+                      <span className="block truncate text-sm font-medium text-foreground">
                         {selected.name}
                       </span>
-                      <span className="block truncate text-[12px] text-app-muted">
+                      <span className="block truncate text-[12px] font-normal text-muted-foreground">
                         {selected.email}
                       </span>
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eceef0] text-[13px] text-app-muted">
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[13px] text-muted-foreground">
                       +
                     </span>
-                    <span className="flex-1 text-sm text-app-muted">
+                    <span className="flex-1 text-left text-sm font-normal text-muted-foreground">
                       Choose a contact…
                     </span>
                   </>
                 )}
-                <svg
-                  aria-hidden
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  className={`shrink-0 text-app-muted transition ${pickerOpen ? "rotate-180" : ""}`}
-                >
-                  <path
-                    d="M4 6l4 4 4-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                <ChevronDown
+                  className={`ml-auto size-4 shrink-0 text-muted-foreground transition ${pickerOpen ? "rotate-180" : ""}`}
+                />
+              </Button>
 
               {pickerOpen ? (
                 <div
                   role="listbox"
-                  className="absolute top-[calc(100%+6px)] right-0 left-0 z-10 overflow-hidden rounded-xl border border-[#e3e5e8] bg-white shadow-[0_12px_32px_rgba(16,24,40,0.12)]"
+                  className="absolute top-[calc(100%+6px)] right-0 left-0 z-10 overflow-hidden rounded-xl border border-border bg-popover shadow-lg"
                 >
-                  <div className="border-b border-[#eef0f2] p-2">
-                    <input
+                  <div className="border-b border-border p-2">
+                    <Input
                       ref={searchRef}
                       type="search"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search contacts…"
-                      className="w-full rounded-lg border border-transparent bg-[#f4f5f6] px-3 py-2 text-sm outline-none placeholder:text-app-muted-2 focus:border-app-focus focus:bg-white"
+                      className="h-9 bg-muted/60"
                     />
                   </div>
                   <ul className="max-h-52 overflow-auto py-1">
                     {filtered.length === 0 ? (
-                      <li className="px-3 py-6 text-center text-[13px] text-app-muted">
+                      <li className="px-3 py-6 text-center text-[13px] text-muted-foreground">
                         No contacts match
                       </li>
                     ) : (
@@ -269,8 +245,8 @@ export function ShareModal({
                                 already
                                   ? "cursor-not-allowed opacity-45"
                                   : active
-                                    ? "bg-[#f0f2f4]"
-                                    : "hover:bg-[#f6f7f8]"
+                                    ? "bg-muted"
+                                    : "hover:bg-muted/70"
                               }`}
                             >
                               <span
@@ -283,7 +259,7 @@ export function ShareModal({
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="flex items-center gap-2">
-                                  <span className="truncate text-sm font-medium text-app-text">
+                                  <span className="truncate text-sm font-medium">
                                     {c.name}
                                   </span>
                                   {c.verified ? (
@@ -292,7 +268,7 @@ export function ShareModal({
                                     </span>
                                   ) : null}
                                 </span>
-                                <span className="block truncate text-[12px] text-app-muted">
+                                <span className="block truncate text-[12px] text-muted-foreground">
                                   {already ? "Already has access" : c.email}
                                 </span>
                               </span>
@@ -306,33 +282,38 @@ export function ShareModal({
               ) : null}
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={busy || !selected || !unlocked}
-              className="h-10 w-full rounded-xl bg-app-primary text-sm font-semibold text-white transition hover:bg-app-primary-hover disabled:opacity-50"
+              className="h-10 w-full"
+              size="lg"
             >
-              {busy ? "Sharing…" : selected ? `Share with ${selected.name}` : "Share"}
-            </button>
+              {busy
+                ? "Sharing…"
+                : selected
+                  ? `Share with ${selected.name}`
+                  : "Share"}
+            </Button>
           </form>
 
           {contacts.length === 0 ? (
-            <p className="rounded-xl bg-[#f6f7f8] px-3 py-3 text-[13px] text-app-muted">
+            <p className="rounded-xl bg-muted px-3 py-3 text-[13px] text-muted-foreground">
               No shareable contacts yet. Add a VaultSpace user on the Keys page
               first.
             </p>
           ) : null}
 
-          {error ? <p className="text-sm text-app-danger">{error}</p> : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {toast ? (
             <p className="text-sm text-emerald-700">{toast}</p>
           ) : null}
 
           <div>
-            <p className="text-[12px] font-medium text-app-muted">
+            <p className="text-[12px] font-medium text-muted-foreground">
               People with access
             </p>
             {access.length === 0 ? (
-              <p className="mt-2 text-[13px] text-app-muted-2">
+              <p className="mt-2 text-[13px] text-muted-foreground">
                 Only you can open this file right now.
               </p>
             ) : (
@@ -340,34 +321,36 @@ export function ShareModal({
                 {access.map((row) => (
                   <li
                     key={row.id}
-                    className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-[#f6f7f8]"
+                    className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted/70"
                   >
-                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-app-accent-soft text-[11px] font-bold">
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-bold">
                       {contactInitials(row.recipientName || row.recipientEmail)}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-app-text">
+                      <p className="truncate text-sm font-medium">
                         {row.recipientName || row.recipientEmail}
                       </p>
-                      <p className="truncate text-[12px] text-app-muted">
+                      <p className="truncate text-[12px] text-muted-foreground">
                         {row.recipientEmail} · Can download
                       </p>
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       disabled={busy}
                       onClick={() => void onRevoke(row.id)}
-                      className="rounded-lg px-2 py-1 text-xs font-semibold text-app-muted hover:bg-white hover:text-app-danger"
+                      className="text-muted-foreground hover:text-destructive"
                     >
                       Revoke
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
