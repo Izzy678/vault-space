@@ -59,7 +59,10 @@ export function categorizeFile(
     mime.includes("document") ||
     mime.includes("sheet") ||
     mime.includes("presentation") ||
-    mime.startsWith("text/") ||
+    mime === "text/plain" ||
+    mime === "text/csv" ||
+    mime === "text/markdown" ||
+    mime === "text/rtf" ||
     DOC_EXT.has(ext)
   ) {
     return "documents";
@@ -102,7 +105,7 @@ export const CATEGORY_META: Record<
     dotClass: "bg-app-cat-audio",
   },
   other: {
-    label: "Other",
+    label: "Others",
     colorClass: "text-app-cat-other",
     softClass: "bg-app-cat-other/10",
     dotClass: "bg-app-cat-other",
@@ -115,6 +118,7 @@ export const SIDEBAR_FILE_TYPES: FileCategory[] = [
   "images",
   "videos",
   "archives",
+  "other",
 ];
 
 export function summarizeByCategory(files: FileRow[]) {

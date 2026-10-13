@@ -7,6 +7,7 @@ const BAR_ORDER: FileCategory[] = [
   "images",
   "videos",
   "archives",
+  "other",
 ];
 
 const DOT: Record<FileCategory, string> = {
@@ -26,7 +27,7 @@ export function StorageCard({
   totalBytes: number;
 }) {
   const pct = Math.min(100, Math.round((totalBytes / STORAGE_QUOTA_BYTES) * 100));
-  const categories = counts.other.bytes > 0 ? [...BAR_ORDER, "other" as const] : BAR_ORDER;
+  const categories = BAR_ORDER;
   const segments = categories.map((cat) => ({
     cat,
     pct: (counts[cat].bytes / Math.max(STORAGE_QUOTA_BYTES, totalBytes)) * 100,

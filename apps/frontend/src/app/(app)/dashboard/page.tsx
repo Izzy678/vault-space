@@ -73,9 +73,9 @@ function DashboardContent() {
       <UploadQueue queue={queue} />
       {error ? <p className="mt-4 text-sm text-app-danger">{error}</p> : null}
 
-      <div className="mt-5 grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 lg:grid-cols-[repeat(3,minmax(0,160px))_minmax(360px,1fr)]">
+      <div className="mt-5 grid grid-cols-2 items-stretch gap-3 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,140px))_minmax(300px,1fr)]">
         <CategoryCards counts={counts} active={filter} onSelect={setFilter} />
-        <div className="col-span-2 min-w-0 sm:col-span-3 lg:col-span-1">
+        <div className="col-span-2 min-w-0 sm:col-span-4 lg:col-span-1">
           <StorageCard counts={counts} totalBytes={totalBytes} />
         </div>
       </div>

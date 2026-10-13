@@ -144,7 +144,7 @@ function FilesContent() {
         <p className="mt-4 text-sm text-app-danger">{shareError}</p>
       ) : null}
 
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:max-w-3xl">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4 xl:max-w-4xl">
         <CategoryCards counts={counts} active={filter} onSelect={onSelect} />
       </div>
 

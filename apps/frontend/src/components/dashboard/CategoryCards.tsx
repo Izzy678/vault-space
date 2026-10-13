@@ -2,7 +2,7 @@ import type { FileCategory } from "@/lib/files/types";
 import { CATEGORY_META } from "@/lib/files/categories";
 import { IconFolderLarge } from "@/components/app/icons";
 
-const SHOW: FileCategory[] = ["images", "documents", "videos"];
+const SHOW: FileCategory[] = ["images", "documents", "videos", "other"];
 
 export function CategoryCards({
   counts,
@@ -24,7 +24,7 @@ export function CategoryCards({
             type="button"
             aria-pressed={selected}
             onClick={() => onSelect(selected ? "all" : cat)}
-            className={`flex h-[190px] min-w-0 flex-col rounded-[12px] border bg-app-surface p-3 text-left shadow-app transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-app-focus ${cat === "videos" ? "col-span-2 sm:col-span-1" : ""} ${
+            className={`flex h-[190px] min-w-0 flex-col rounded-[12px] border bg-app-surface p-3 text-left shadow-app transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-app-focus ${
               selected
                 ? "border-app-focus ring-2 ring-app-focus/20"
                 : "border-app-border hover:border-app-focus/40"
