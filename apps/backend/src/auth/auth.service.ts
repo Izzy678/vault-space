@@ -12,6 +12,7 @@ import { ActivityService } from '../activity/activity.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import {
   generateRecoveryCodes,
   generateTotpSecret,
@@ -182,6 +183,43 @@ export class AuthService {
     return {
       user: { id: user.id, email: user.email, name: user.name },
     };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.requireUser(userId);
+
+    const valid = await argon2.verify(user.passwordHash, dto.currentPassword);
+    if (!valid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    if (dto.newPassword === dto.currentPassword) {
+      throw new BadRequestException(
+        'New password must be different from the current password',
+      );
+    }
+
+    if (user.totpEnabled && user.totpSecret) {
+      if (!dto.code?.trim()) {
+        throw new BadRequestException(
+          'Authenticator code is required to change your password',
+        );
+      }
+      const ok = await this.consumeTotpOrRecovery(user, dto.code);
+      if (!ok) {
+        throw new UnauthorizedException(
+          'Invalid authenticator or recovery code',
+        );
+      }
+    }
+
+    user.passwordHash = await argon2.hash(dto.newPassword, {
+      type: argon2.argon2id,
+    });
+    await this.usersService.save(user);
+
+    this.activityService.log(userId, 'auth', 'Account password changed');
+    return { changed: true };
   }
 
   private async consumeTotpOrRecovery(user: User, code: string): Promise<boolean> {

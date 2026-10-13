@@ -10,6 +10,7 @@ import {
   getAutolock,
   setAutolock,
 } from "@/lib/settings";
+import { changeAccountPassword } from "@/lib/auth/password";
 import {
   beginTwofaSetup,
   disableTwofa,
@@ -42,6 +43,13 @@ export default function SettingsPage() {
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
   const [twofaBusy, setTwofaBusy] = useState(false);
   const [showDisable, setShowDisable] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordCode, setPasswordCode] = useState("");
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     setAutolockState(getAutolock());
@@ -76,6 +84,51 @@ export default function SettingsPage() {
   function say(msg: string) {
     setToast(msg);
     window.setTimeout(() => setToast(null), 2600);
+  }
+
+  function resetPasswordForm() {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordCode("");
+    setPasswordError(null);
+  }
+
+  async function onChangePassword(e: FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setPasswordError(null);
+
+    if (newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New passwords don’t match");
+      return;
+    }
+    if (twofa && !passwordCode.trim()) {
+      setPasswordError("Enter your authenticator code to continue");
+      return;
+    }
+
+    setPasswordBusy(true);
+    try {
+      await changeAccountPassword(token, {
+        currentPassword,
+        newPassword,
+        ...(twofa ? { code: passwordCode.trim() } : {}),
+      });
+      resetPasswordForm();
+      setShowPassword(false);
+      say("Account password updated");
+    } catch (err) {
+      setPasswordError(
+        err instanceof Error ? err.message : "Couldn’t change password",
+      );
+    } finally {
+      setPasswordBusy(false);
+    }
   }
 
   async function saveName() {
@@ -407,24 +460,110 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-4 pt-4">
-            <div>
-              <p className="text-sm font-medium text-app-text">
-                Account password
-              </p>
-              <p className="mt-0.5 text-[13px] text-app-muted">
-                Separate from your key passphrase.
-              </p>
+          <div className="pt-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-app-text">
+                  Account password
+                </p>
+                <p className="mt-0.5 text-[13px] text-app-muted">
+                  Separate from your key passphrase.
+                  {twofa
+                    ? " Authenticator code required when 2FA is on."
+                    : ""}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPassword((v) => !v);
+                  setPasswordError(null);
+                  if (showPassword) resetPasswordForm();
+                }}
+                className="rounded-[10px] border border-app-border px-3 py-1.5 text-xs font-semibold hover:bg-app-bg"
+              >
+                {showPassword ? "Cancel" : "Change"}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() =>
-                say("Password change API will land in a later pass")
-              }
-              className="rounded-[10px] border border-app-border px-3 py-1.5 text-xs font-semibold hover:bg-app-bg"
-            >
-              Change
-            </button>
+
+            {showPassword ? (
+              <form
+                onSubmit={(e) => void onChangePassword(e)}
+                className="mt-4 space-y-3 rounded-[10px] border border-app-border bg-app-bg/40 p-4"
+              >
+                <label className="block">
+                  <span className="text-[12px] font-medium text-app-muted">
+                    Current password
+                  </span>
+                  <input
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[12px] font-medium text-app-muted">
+                    New password
+                  </span>
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[12px] font-medium text-app-muted">
+                    Confirm new password
+                  </span>
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                  />
+                </label>
+                {twofa ? (
+                  <label className="block">
+                    <span className="text-[12px] font-medium text-app-muted">
+                      Authenticator code
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      required
+                      placeholder="123456"
+                      value={passwordCode}
+                      onChange={(e) => setPasswordCode(e.target.value)}
+                      className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                    />
+                    <span className="mt-1 block text-[12px] text-app-muted-2">
+                      Or use a recovery code if you can’t open your app.
+                    </span>
+                  </label>
+                ) : null}
+                {passwordError ? (
+                  <p className="text-sm text-app-danger">{passwordError}</p>
+                ) : null}
+                <button
+                  type="submit"
+                  disabled={passwordBusy}
+                  className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-white hover:bg-app-primary-hover disabled:opacity-60"
+                >
+                  {passwordBusy ? "Updating…" : "Update password"}
+                </button>
+              </form>
+            ) : null}
           </div>
         </section>
 
