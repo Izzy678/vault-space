@@ -1,0 +1,292 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { fullNameFromUser } from "@/lib/files/format";
+import {
+  AUTOLOCK_OPTIONS,
+  type AutolockOption,
+  getAutolock,
+  getTwofa,
+  setAutolock,
+  setTwofa,
+} from "@/lib/settings";
+import { useVault } from "@/lib/vault/VaultProvider";
+
+type SessionRow = {
+  id: string;
+  device: string;
+  meta: string;
+  current: boolean;
+};
+
+export default function SettingsPage() {
+  const { user, logout, updateName } = useAuth();
+  const { unlocked, lock } = useVault();
+  const router = useRouter();
+  const [autolock, setAutolockState] = useState<AutolockOption>("15 min");
+  const [twofa, setTwofaState] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [nameDraft, setNameDraft] = useState("");
+  const [savingName, setSavingName] = useState(false);
+
+  useEffect(() => {
+    setAutolockState(getAutolock());
+    setTwofaState(getTwofa());
+    const ua =
+      typeof navigator !== "undefined" ? navigator.userAgent : "Browser";
+    const device = /Chrome/.test(ua)
+      ? "Chrome on this device"
+      : /Safari/.test(ua)
+        ? "Safari on this device"
+        : "This browser";
+    setSessions([
+      {
+        id: "current",
+        device,
+        meta: "Active now",
+        current: true,
+      },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    setNameDraft(user?.name?.trim() ?? "");
+  }, [user?.id, user?.name]);
+
+  function say(msg: string) {
+    setToast(msg);
+    window.setTimeout(() => setToast(null), 2600);
+  }
+
+  async function saveName() {
+    const next = nameDraft.trim();
+    if (!next) {
+      say("Name can’t be empty");
+      return;
+    }
+    if (next === (user?.name?.trim() ?? "")) {
+      say("Name is already up to date");
+      return;
+    }
+    setSavingName(true);
+    try {
+      await updateName(next);
+      say("Name updated");
+    } catch (err) {
+      say(err instanceof Error ? err.message : "Couldn’t update name");
+    } finally {
+      setSavingName(false);
+    }
+  }
+
+  function signOut() {
+    lock();
+    logout();
+    router.push("/login");
+  }
+
+  const nameDirty = nameDraft.trim() !== (user?.name?.trim() ?? "");
+
+  return (
+      <div className="flex w-full max-w-[760px] flex-col gap-7 px-7 py-7 pb-[60px]">
+        <h1 className="text-2xl font-semibold tracking-tight text-app-text">
+          Settings
+        </h1>
+        {toast ? (
+          <p className="rounded-[10px] bg-app-accent-soft px-3 py-2 text-sm">
+            {toast}
+          </p>
+        ) : null}
+
+        <section className="rounded-[12px] border border-app-border bg-app-surface p-5">
+          <h2 className="text-sm font-semibold text-app-text">Account</h2>
+          <div className="mt-4 space-y-4 text-sm">
+            <form
+              className="space-y-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void saveName();
+              }}
+            >
+              <label
+                htmlFor="account-name"
+                className="block text-app-muted"
+              >
+                Name
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  id="account-name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  value={nameDraft}
+                  maxLength={120}
+                  placeholder={fullNameFromUser(user, "Your name")}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  className="min-w-0 flex-1 rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm font-medium text-app-text outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
+                />
+                <button
+                  type="submit"
+                  disabled={savingName || !nameDirty || !nameDraft.trim()}
+                  className="shrink-0 rounded-[10px] bg-app-primary px-4 py-2 text-xs font-semibold text-white hover:bg-app-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {savingName ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </form>
+            <div className="flex justify-between gap-4 border-t border-app-border pt-4">
+              <span className="text-app-muted">Email</span>
+              <span className="font-medium text-app-text">{user?.email}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[12px] border border-app-border bg-app-surface p-5">
+          <h2 className="text-sm font-semibold text-app-text">Security</h2>
+
+          <div className="mt-4 flex items-start justify-between gap-4 border-b border-app-border pb-4">
+            <div>
+              <p className="text-sm font-medium text-app-text">
+                Two-factor authentication
+              </p>
+              <p className="mt-0.5 text-[13px] text-app-muted">
+                Authenticator app code required at sign-in. UI preference only
+                for this demo — not enforced by the API yet.
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={twofa}
+              onClick={() => {
+                const next = !twofa;
+                setTwofaState(next);
+                setTwofa(next);
+              }}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+                twofa ? "bg-emerald-500" : "bg-app-border"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                  twofa ? "translate-x-5" : ""
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="border-b border-app-border py-4">
+            <p className="text-sm font-medium text-app-text">Auto-lock vault</p>
+            <p className="mt-0.5 text-[13px] text-app-muted">
+              Clears the decrypted private key from memory after inactivity.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1 rounded-[10px] border border-app-border p-1">
+              {AUTOLOCK_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => {
+                    setAutolockState(opt);
+                    setAutolock(opt);
+                    say(`Auto-lock set to ${opt}`);
+                  }}
+                  className={`rounded-[8px] px-3 py-1.5 text-xs font-medium transition ${
+                    autolock === opt
+                      ? "bg-app-accent-soft text-app-text"
+                      : "text-app-muted hover:bg-app-bg"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 pt-4">
+            <div>
+              <p className="text-sm font-medium text-app-text">
+                Account password
+              </p>
+              <p className="mt-0.5 text-[13px] text-app-muted">
+                Separate from your key passphrase.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                say("Password change API will land in a later pass")
+              }
+              className="rounded-[10px] border border-app-border px-3 py-1.5 text-xs font-semibold hover:bg-app-bg"
+            >
+              Change
+            </button>
+          </div>
+        </section>
+
+        <section className="rounded-[12px] border border-app-border bg-app-surface p-5">
+          <h2 className="text-sm font-semibold text-app-text">
+            Active sessions
+          </h2>
+          <ul className="mt-4 divide-y divide-app-border">
+            {sessions.map((s) => (
+              <li
+                key={s.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+              >
+                <div>
+                  <p className="text-sm font-medium text-app-text">
+                    {s.device}
+                  </p>
+                  <p className="text-[13px] text-app-muted">{s.meta}</p>
+                </div>
+                {s.current ? (
+                  <span className="text-xs font-semibold text-emerald-600">
+                    This device
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSessions((list) =>
+                        list.filter((x) => x.id !== s.id),
+                      );
+                      say("Session signed out");
+                    }}
+                    className="text-xs font-semibold text-app-muted hover:text-app-text"
+                  >
+                    Sign out
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[12px] text-app-muted-2">
+            Vault session: {unlocked ? "unlocked in this tab" : "locked"}
+          </p>
+        </section>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={signOut}
+            className="rounded-[10px] border border-app-border px-4 py-2 text-sm font-medium hover:bg-app-bg"
+          >
+            Sign out
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              say("Account deletion requires confirming your passphrase")
+            }
+            className="rounded-[10px] border border-red-200 px-4 py-2 text-sm font-medium text-app-danger hover:bg-app-danger-soft"
+          >
+            Delete account
+          </button>
+        </div>
+      </div>
+  );
+}
