@@ -13,9 +13,7 @@ import {
   type RefObject,
   type ReactNode,
 } from "react";
-import { Moon, Sun } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { useVault } from "@/lib/vault/VaultProvider";
 import { apiJson } from "@/lib/api/client";
 import {
@@ -24,17 +22,13 @@ import {
   summarizeByCategory,
 } from "@/lib/files/categories";
 import type { FileRow } from "@/lib/files/types";
-import {
-  fullNameFromUser,
-  initialsFromUser,
-  formatBytes,
-  STORAGE_QUOTA_BYTES,
-} from "@/lib/files/format";
+import { fullNameFromUser, initialsFromUser } from "@/lib/files/format";
 import {
   IconActivity,
   IconFolder,
   IconGrid,
   IconKey,
+  IconLock,
   IconSearch,
   IconSettings,
   IconSidebarToggle,
@@ -80,7 +74,6 @@ function AppShellInner({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const { user, token } = useAuth();
   const { unlocked, lock } = useVault();
-  const { theme, toggleTheme } = useTheme();
   const [mobileNav, setMobileNav] = useState(false);
   const [files, setFiles] = useState<FileRow[]>([]);
   const collapsed = useSyncExternalStore(
@@ -97,12 +90,14 @@ function AppShellInner({ children }: { children: ReactNode }) {
   const typeFilter = searchParams.get("type");
 
   const initials = useMemo(() => initialsFromUser(user), [user]);
+  const displayName = useMemo(() => fullNameFromUser(user), [user]);
 
   const counts = useMemo(() => summarizeByCategory(files), [files]);
-  const totalBytes = useMemo(
-    () => files.reduce((n, f) => n + f.sizeBytes, 0),
-    [files],
-  );
+
+  function lockVault() {
+    lock();
+    router.push("/security");
+  }
 
   useEffect(() => {
     if (!token || !unlocked) {
@@ -295,69 +290,49 @@ function AppShellInner({ children }: { children: ReactNode }) {
 
         {typeNav}
 
-        <div className="mt-auto space-y-3 border-t border-app-border pt-4">
-          {!collapsed ? (
-            <div className="px-2">
-              <div className="mb-1.5 flex justify-between text-[11px] text-app-muted">
-                <span>{formatBytes(totalBytes)}</span>
-                <span>of {formatBytes(STORAGE_QUOTA_BYTES)}</span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-app-bg">
-                <div
-                  className="h-full rounded-full bg-[#2dd4bf]"
-                  style={{
-                    width: `${Math.min(100, (totalBytes / STORAGE_QUOTA_BYTES) * 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
-          ) : null}
-
-          <div
-            className={`flex items-center gap-2 rounded-[10px] ${collapsed ? "justify-center" : "px-2"}`}
-          >
-            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-app-accent-soft text-xs font-semibold text-app-accent">
-              {initials}
-            </span>
-            {!collapsed ? (
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[12px] font-medium text-app-text">
-                  {fullNameFromUser(user)}
-                </p>
-                <p
-                  className={`text-[11px] ${unlocked ? "text-emerald-600" : "text-app-danger"}`}
-                >
-                  {unlocked ? "Vault unlocked" : "Vault locked"}
-                </p>
-              </div>
-            ) : null}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={
-                theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-              }
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-app-border text-app-muted hover:bg-app-bg hover:text-app-text"
-            >
-              {theme === "dark" ? (
-                <Sun className="size-3.5" />
-              ) : (
-                <Moon className="size-3.5" />
-              )}
-            </button>
-            {!collapsed ? (
+        <div className="mt-auto border-t border-app-border pt-3">
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-2">
+              <Link
+                href="/settings"
+                title={displayName}
+                aria-label={`Account · ${displayName}`}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-app-accent-soft text-xs font-semibold text-app-accent"
+              >
+                {initials}
+              </Link>
               <button
                 type="button"
-                onClick={() => {
-                  lock();
-                  router.push("/security");
-                }}
-                className="rounded-md border border-app-border px-2 py-1 text-[11px] font-semibold text-app-muted hover:bg-app-bg hover:text-app-text"
+                onClick={lockVault}
+                title="Lock vault"
+                aria-label="Lock vault"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-bg hover:text-app-text"
+              >
+                <IconLock />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-1">
+              <Link
+                href="/settings"
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] px-1 py-1 transition hover:bg-app-bg"
+              >
+                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-app-accent-soft text-xs font-semibold text-app-accent">
+                  {initials}
+                </span>
+                <span className="truncate text-[12px] font-medium text-app-text">
+                  {displayName}
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={lockVault}
+                className="shrink-0 rounded-md border border-app-border px-2 py-1 text-[11px] font-semibold text-app-muted transition hover:bg-app-bg hover:text-app-text"
               >
                 Lock
               </button>
-            ) : null}
-          </div>
+            </div>
+          )}
         </div>
       </aside>
 
