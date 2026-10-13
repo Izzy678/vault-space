@@ -81,6 +81,7 @@ export function initialsFromUser(
   return fallback;
 }
 
-/** Soft demo quota for storage UI (ciphertext bytes). */
-/** Soft demo quota (matches prototype 1 GB). */
-export const STORAGE_QUOTA_BYTES = 1 * 1024 * 1024 * 1024;
+/** Per-account ciphertext quota (must match backend STORAGE_QUOTA_BYTES). */
+export const STORAGE_QUOTA_BYTES = Number(
+  process.env.NEXT_PUBLIC_STORAGE_QUOTA_BYTES ?? 50 * 1024 * 1024,
+);

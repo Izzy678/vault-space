@@ -32,6 +32,11 @@ export class FilesController {
     return this.filesService.listForUser(user.id);
   }
 
+  @Get('quota')
+  quota(@CurrentUser() user: AuthUser) {
+    return this.filesService.getQuota(user.id);
+  }
+
   @Get('wrapped-keys')
   listWrappedKeys(@CurrentUser() user: AuthUser) {
     return this.filesService.listWrappedKeys(user.id);

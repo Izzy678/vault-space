@@ -84,7 +84,11 @@ export function StorageCard({
       </div>
 
       <p className="border-t border-app-border px-3 py-2 text-[13px] text-app-muted">
-        {pct}% storage used, review heavy files to organize.
+        {pct >= 100
+          ? "Storage full — delete files to upload more."
+          : pct >= 90
+            ? `${pct}% storage used — almost at the ${formatBytes(STORAGE_QUOTA_BYTES)} limit.`
+            : `${pct}% storage used of ${formatBytes(STORAGE_QUOTA_BYTES)} account quota.`}
       </p>
     </section>
   );

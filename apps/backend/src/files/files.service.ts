@@ -25,6 +25,7 @@ export type UploadMeta = {
 @Injectable()
 export class FilesService {
   private readonly maxUploadBytes: number;
+  private readonly storageQuotaBytes: number;
 
   constructor(
     @InjectRepository(FileObject)
@@ -38,6 +39,9 @@ export class FilesService {
     this.maxUploadBytes = Number(
       config.get<string>('MAX_UPLOAD_BYTES') ?? 52_428_800,
     );
+    this.storageQuotaBytes = Number(
+      config.get<string>('STORAGE_QUOTA_BYTES') ?? 52_428_800,
+    );
   }
 
   async listForUser(userId: string) {
@@ -46,6 +50,16 @@ export class FilesService {
       order: { uploadedAt: 'DESC' },
     });
     return files.map((f) => this.toMetadata(f));
+  }
+
+  async getQuota(userId: string) {
+    const usedBytes = await this.usageForUser(userId);
+    return {
+      usedBytes,
+      quotaBytes: this.storageQuotaBytes,
+      maxUploadBytes: this.maxUploadBytes,
+      remainingBytes: Math.max(0, this.storageQuotaBytes - usedBytes),
+    };
   }
 
   async getMetadata(userId: string, fileId: string) {
@@ -66,7 +80,15 @@ export class FilesService {
   async upload(userId: string, ciphertext: Buffer, meta: UploadMeta) {
     if (ciphertext.byteLength > this.maxUploadBytes) {
       throw new PayloadTooLargeException(
-        `File exceeds max upload size of ${this.maxUploadBytes} bytes`,
+        `File exceeds max upload size of ${this.formatBytes(this.maxUploadBytes)}`,
+      );
+    }
+
+    const usedBytes = await this.usageForUser(userId);
+    if (usedBytes + ciphertext.byteLength > this.storageQuotaBytes) {
+      const remaining = Math.max(0, this.storageQuotaBytes - usedBytes);
+      throw new PayloadTooLargeException(
+        `Storage quota exceeded (${this.formatBytes(usedBytes)} of ${this.formatBytes(this.storageQuotaBytes)} used; ${this.formatBytes(remaining)} free). Delete files to free space.`,
       );
     }
 
@@ -213,6 +235,21 @@ export class FilesService {
       return value;
     }
     return Buffer.from(value).toString('base64');
+  }
+
+  private async usageForUser(userId: string): Promise<number> {
+    const raw = await this.filesRepo
+      .createQueryBuilder('f')
+      .select('COALESCE(SUM(f.size_bytes), 0)', 'total')
+      .where('f.owner_id = :userId', { userId })
+      .getRawOne<{ total: string | number }>();
+    return Number(raw?.total ?? 0);
+  }
+
+  private formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
   private async findOwned(userId: string, fileId: string) {

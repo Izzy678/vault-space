@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiBinary, apiJson, apiUpload } from "@/lib/api/client";
 import { decryptFile, encryptFile } from "@/lib/crypto";
 import { categorizeFile, summarizeByCategory } from "@/lib/files/categories";
+import { formatBytes, STORAGE_QUOTA_BYTES } from "@/lib/files/format";
 import type { FileCategory, FileRow, QueueItem } from "@/lib/files/types";
 import type { UnlockedVault } from "@/lib/crypto/vault";
 
@@ -81,6 +82,8 @@ export function useVaultFiles(
     if (!fileList?.length || !token || !unlocked) return;
     setError(null);
 
+    let usedBytes = totalBytes;
+
     for (const file of Array.from(fileList)) {
       const update = (stage: string, errorMsg?: string) =>
         setQueue((q) => {
@@ -89,8 +92,22 @@ export function useVaultFiles(
         });
 
       try {
+        if (usedBytes + file.size > STORAGE_QUOTA_BYTES) {
+          const remaining = Math.max(0, STORAGE_QUOTA_BYTES - usedBytes);
+          throw new Error(
+            `Storage quota exceeded (${formatBytes(usedBytes)} of ${formatBytes(STORAGE_QUOTA_BYTES)} used; ${formatBytes(remaining)} free). Delete files to free space.`,
+          );
+        }
+
         update("Encrypting");
         const enc = await encryptFile(file, unlocked.publicKey);
+        if (usedBytes + enc.ciphertext.size > STORAGE_QUOTA_BYTES) {
+          const remaining = Math.max(0, STORAGE_QUOTA_BYTES - usedBytes);
+          throw new Error(
+            `Storage quota exceeded (${formatBytes(usedBytes)} of ${formatBytes(STORAGE_QUOTA_BYTES)} used; ${formatBytes(remaining)} free). Delete files to free space.`,
+          );
+        }
+
         update("Uploading");
         const form = new FormData();
         form.append("ciphertext", enc.ciphertext, `${file.name}.enc`);
@@ -100,6 +117,7 @@ export function useVaultFiles(
         form.append("iv", enc.iv);
         form.append("authTag", enc.authTag);
         await apiUpload("/files", form, token);
+        usedBytes += enc.ciphertext.size;
         update("Complete");
         await loadFiles();
       } catch (err) {
