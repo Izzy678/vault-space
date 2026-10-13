@@ -38,7 +38,7 @@ type VaultState = {
 const VaultContext = createContext<VaultState | null>(null);
 
 export function VaultProvider({ children }: { children: React.ReactNode }) {
-  const { token, user } = useAuth();
+  const { token, user, ready: authReady } = useAuth();
   const [unlocked, setUnlocked] = useState<UnlockedVault | null>(null);
   const [hasPackage, setHasPackage] = useState<boolean | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
@@ -113,14 +113,19 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Re-hydrate unlocked keys after refresh (same tab session).
+  // Wait for auth hydration first — never clear sessionStorage while token
+  // is briefly null on boot, or refresh always dumps you back on /security.
   useEffect(() => {
     let cancelled = false;
 
+    if (!authReady) {
+      setSessionReady(false);
+      return;
+    }
+
     if (!token || !user?.id) {
-      if (!token) {
-        clearVaultSession();
-        setUnlocked(null);
-      }
+      // Signed out for real (logout already cleared sessionStorage).
+      setUnlocked(null);
       setSessionReady(true);
       return;
     }
@@ -141,7 +146,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [token, user?.id]);
+  }, [authReady, token, user?.id]);
 
   useEffect(() => {
     function onPointer() {
