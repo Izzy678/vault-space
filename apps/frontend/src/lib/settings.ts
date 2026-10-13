@@ -1,7 +1,6 @@
 export type AutolockOption = "5 min" | "15 min" | "1 hour" | "Never";
 
 const AUTOLOCK_KEY = "vaultspace.autolock";
-const TWOFA_KEY = "vaultspace.twofa";
 
 export const AUTOLOCK_OPTIONS: AutolockOption[] = [
   "5 min",
@@ -35,15 +34,6 @@ export function autolockMs(value: AutolockOption): number | null {
     case "Never":
       return null;
   }
-}
-
-export function getTwofa(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem(TWOFA_KEY) === "true";
-}
-
-export function setTwofa(on: boolean) {
-  localStorage.setItem(TWOFA_KEY, String(on));
 }
 
 export function formatFingerprint(fp: string): string {

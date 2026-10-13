@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { fullNameFromUser } from "@/lib/files/format";
@@ -8,10 +8,15 @@ import {
   AUTOLOCK_OPTIONS,
   type AutolockOption,
   getAutolock,
-  getTwofa,
   setAutolock,
-  setTwofa,
 } from "@/lib/settings";
+import {
+  beginTwofaSetup,
+  disableTwofa,
+  enableTwofa,
+  fetchTwofaStatus,
+  type TwofaSetup,
+} from "@/lib/twofa";
 import { useVault } from "@/lib/vault/VaultProvider";
 
 type SessionRow = {
@@ -22,7 +27,7 @@ type SessionRow = {
 };
 
 export default function SettingsPage() {
-  const { user, logout, updateName } = useAuth();
+  const { user, token, logout, updateName } = useAuth();
   const { unlocked, lock } = useVault();
   const router = useRouter();
   const [autolock, setAutolockState] = useState<AutolockOption>("15 min");
@@ -31,10 +36,15 @@ export default function SettingsPage() {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [nameDraft, setNameDraft] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [setup, setSetup] = useState<TwofaSetup | null>(null);
+  const [setupCode, setSetupCode] = useState("");
+  const [disableCode, setDisableCode] = useState("");
+  const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
+  const [twofaBusy, setTwofaBusy] = useState(false);
+  const [showDisable, setShowDisable] = useState(false);
 
   useEffect(() => {
     setAutolockState(getAutolock());
-    setTwofaState(getTwofa());
     const ua =
       typeof navigator !== "undefined" ? navigator.userAgent : "Browser";
     const device = /Chrome/.test(ua)
@@ -51,6 +61,13 @@ export default function SettingsPage() {
       },
     ]);
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    void fetchTwofaStatus(token)
+      .then((s) => setTwofaState(s.enabled))
+      .catch(() => setTwofaState(false));
+  }, [token]);
 
   useEffect(() => {
     setNameDraft(user?.name?.trim() ?? "");
@@ -79,6 +96,64 @@ export default function SettingsPage() {
       say(err instanceof Error ? err.message : "Couldn’t update name");
     } finally {
       setSavingName(false);
+    }
+  }
+
+  async function onToggleTwofa() {
+    if (!token) return;
+    setTwofaBusy(true);
+    try {
+      if (twofa) {
+        setShowDisable(true);
+        setSetup(null);
+        setRecoveryCodes(null);
+      } else {
+        const next = await beginTwofaSetup(token);
+        setSetup(next);
+        setShowDisable(false);
+        setRecoveryCodes(null);
+        setSetupCode("");
+      }
+    } catch (err) {
+      say(err instanceof Error ? err.message : "Couldn’t start 2FA setup");
+    } finally {
+      setTwofaBusy(false);
+    }
+  }
+
+  async function onConfirmEnable(e: FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setTwofaBusy(true);
+    try {
+      const res = await enableTwofa(token, setupCode.trim());
+      setTwofaState(true);
+      setSetup(null);
+      setSetupCode("");
+      setRecoveryCodes(res.recoveryCodes);
+      say("Two-factor authentication enabled");
+    } catch (err) {
+      say(err instanceof Error ? err.message : "Invalid code");
+    } finally {
+      setTwofaBusy(false);
+    }
+  }
+
+  async function onConfirmDisable(e: FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setTwofaBusy(true);
+    try {
+      await disableTwofa(token, disableCode.trim());
+      setTwofaState(false);
+      setShowDisable(false);
+      setDisableCode("");
+      setRecoveryCodes(null);
+      say("Two-factor authentication disabled");
+    } catch (err) {
+      say(err instanceof Error ? err.message : "Couldn’t disable 2FA");
+    } finally {
+      setTwofaBusy(false);
     }
   }
 
@@ -148,35 +223,161 @@ export default function SettingsPage() {
         <section className="rounded-[12px] border border-app-border bg-app-surface p-5">
           <h2 className="text-sm font-semibold text-app-text">Security</h2>
 
-          <div className="mt-4 flex items-start justify-between gap-4 border-b border-app-border pb-4">
-            <div>
-              <p className="text-sm font-medium text-app-text">
-                Two-factor authentication
-              </p>
-              <p className="mt-0.5 text-[13px] text-app-muted">
-                Authenticator app code required at sign-in. UI preference only
-                for this demo — not enforced by the API yet.
-              </p>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={twofa}
-              onClick={() => {
-                const next = !twofa;
-                setTwofaState(next);
-                setTwofa(next);
-              }}
-              className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-                twofa ? "bg-emerald-500" : "bg-app-border"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-                  twofa ? "translate-x-5" : ""
+          <div className="mt-4 border-b border-app-border pb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-app-text">
+                  Two-factor authentication
+                </p>
+                <p className="mt-0.5 text-[13px] text-app-muted">
+                  {twofa
+                    ? "Authenticator app required at sign-in."
+                    : "Add Google Authenticator (or Authy / 1Password) for sign-in."}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={twofa}
+                disabled={twofaBusy}
+                onClick={() => void onToggleTwofa()}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50 ${
+                  twofa ? "bg-emerald-500" : "bg-app-border"
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                    twofa ? "translate-x-5" : ""
+                  }`}
+                />
+              </button>
+            </div>
+
+            {setup ? (
+              <form
+                onSubmit={(e) => void onConfirmEnable(e)}
+                className="mt-4 space-y-3 rounded-[12px] border border-app-border bg-app-bg p-4"
+              >
+                <p className="text-[13px] text-app-muted">
+                  Scan this QR with your authenticator app, then enter the
+                  6-digit code.
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={setup.qrDataUrl}
+                  alt="2FA QR code"
+                  className="mx-auto h-[180px] w-[180px] rounded-lg bg-white p-2"
+                />
+                <p className="break-all text-center font-mono text-[11px] text-app-muted">
+                  {setup.secret}
+                </p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  pattern="\d{6}"
+                  value={setupCode}
+                  onChange={(e) => setSetupCode(e.target.value)}
+                  placeholder="123456"
+                  className="w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={twofaBusy}
+                    onClick={() => {
+                      setSetup(null);
+                      setSetupCode("");
+                    }}
+                    className="rounded-[10px] border border-app-border px-3 py-2 text-xs font-semibold hover:bg-app-surface"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={twofaBusy}
+                    className="rounded-[10px] bg-app-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                  >
+                    {twofaBusy ? "Enabling…" : "Confirm and enable"}
+                  </button>
+                </div>
+              </form>
+            ) : null}
+
+            {showDisable ? (
+              <form
+                onSubmit={(e) => void onConfirmDisable(e)}
+                className="mt-4 space-y-3 rounded-[12px] border border-app-border bg-app-bg p-4"
+              >
+                <p className="text-[13px] text-app-muted">
+                  Enter a current authenticator code or a recovery code to
+                  disable 2FA.
+                </p>
+                <input
+                  type="text"
+                  required
+                  value={disableCode}
+                  onChange={(e) => setDisableCode(e.target.value)}
+                  placeholder="123456 or XXXX-XXXX"
+                  className="w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={twofaBusy}
+                    onClick={() => {
+                      setShowDisable(false);
+                      setDisableCode("");
+                    }}
+                    className="rounded-[10px] border border-app-border px-3 py-2 text-xs font-semibold hover:bg-app-surface"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={twofaBusy}
+                    className="rounded-[10px] border border-red-200 px-4 py-2 text-xs font-semibold text-app-danger hover:bg-app-danger-soft disabled:opacity-60"
+                  >
+                    {twofaBusy ? "Disabling…" : "Disable 2FA"}
+                  </button>
+                </div>
+              </form>
+            ) : null}
+
+            {recoveryCodes ? (
+              <div className="mt-4 space-y-3 rounded-[12px] border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-medium text-amber-950">
+                  Save these recovery codes
+                </p>
+                <p className="text-[13px] text-amber-900/80">
+                  Each code works once if you lose your authenticator. Store
+                  them offline — they won’t be shown again.
+                </p>
+                <ul className="grid grid-cols-2 gap-2 font-mono text-[13px] text-amber-950">
+                  {recoveryCodes.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(recoveryCodes.join("\n"));
+                    say("Recovery codes copied");
+                  }}
+                  className="rounded-[10px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-950"
+                >
+                  Copy codes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRecoveryCodes(null)}
+                  className="ml-2 text-xs font-semibold text-amber-900/70 hover:text-amber-950"
+                >
+                  Done
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className="border-b border-app-border py-4">

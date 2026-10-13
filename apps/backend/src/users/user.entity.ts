@@ -24,6 +24,17 @@ export class User {
   @Column({ name: 'password_hash' })
   passwordHash: string;
 
+  @Column({ name: 'totp_enabled', type: 'boolean', default: false })
+  totpEnabled: boolean;
+
+  /** AES-GCM sealed base32 secret (null when 2FA off). */
+  @Column({ name: 'totp_secret', type: 'text', nullable: true })
+  totpSecret: string | null;
+
+  /** JSON array of argon2 hashes for one-time recovery codes. */
+  @Column({ name: 'totp_recovery_hashes', type: 'text', nullable: true })
+  totpRecoveryHashes: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

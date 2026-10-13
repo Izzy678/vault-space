@@ -39,4 +39,8 @@ export class UsersService {
     user.name = name.trim();
     return this.usersRepo.save(user);
   }
+
+  async save(user: User): Promise<User> {
+    return this.usersRepo.save(user);
+  }
 }

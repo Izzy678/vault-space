@@ -13,11 +13,16 @@ import { clearVaultSession } from "../crypto/vaultSession";
 
 type User = { id: string; email: string; name: string | null };
 
+type LoginResult =
+  | { requires2fa: false }
+  | { requires2fa: true; preAuthToken: string; email: string };
+
 type AuthState = {
   user: User | null;
   token: string | null;
   ready: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResult>;
+  completeLogin2fa: (preAuthToken: string, code: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   updateName: (name: string) => Promise<void>;
   logout: () => void;
@@ -59,12 +64,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string): Promise<LoginResult> => {
+      const res = await apiJson<{
+        requires2fa?: boolean;
+        preAuthToken?: string;
+        accessToken?: string;
+        user: User;
+      }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (res.requires2fa && res.preAuthToken) {
+        return {
+          requires2fa: true,
+          preAuthToken: res.preAuthToken,
+          email: res.user.email,
+        };
+      }
+
+      if (!res.accessToken) {
+        throw new Error("Login failed");
+      }
+      persist(res.accessToken, res.user);
+      return { requires2fa: false };
+    },
+    [persist],
+  );
+
+  const completeLogin2fa = useCallback(
+    async (preAuthToken: string, code: string) => {
       const res = await apiJson<{ accessToken: string; user: User }>(
-        "/auth/login",
+        "/auth/2fa/login",
         {
           method: "POST",
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ preAuthToken, code }),
         },
       );
       persist(res.accessToken, res.user);
@@ -107,8 +141,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, token, ready, login, register, updateName, logout }),
-    [user, token, ready, login, register, updateName, logout],
+    () => ({
+      user,
+      token,
+      ready,
+      login,
+      completeLogin2fa,
+      register,
+      updateName,
+      logout,
+    }),
+    [
+      user,
+      token,
+      ready,
+      login,
+      completeLogin2fa,
+      register,
+      updateName,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
