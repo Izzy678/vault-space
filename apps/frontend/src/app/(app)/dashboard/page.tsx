@@ -6,7 +6,7 @@ import { AppHeaderActions } from "@/components/app/AppShell";
 import { CategoryCards } from "@/components/dashboard/CategoryCards";
 import { RecentFilesTable } from "@/components/dashboard/RecentFilesTable";
 import { StorageCard } from "@/components/dashboard/StorageCard";
-import { ShareModal } from "@/components/files/ShareModal";
+import { FileDetailDrawer } from "@/components/files/FileDetailDrawer";
 import { UploadButtons, UploadQueue } from "@/components/files/UploadButtons";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useVault } from "@/lib/vault/VaultProvider";
@@ -32,9 +32,10 @@ function DashboardContent() {
     error,
     counts,
     totalBytes,
+    reload,
   } = useVaultFiles(token, unlocked);
   const [filter, setFilter] = useState<FileCategory | "all">("all");
-  const [shareFile, setShareFile] = useState<FileRow | null>(null);
+  const [selected, setSelected] = useState<FileRow | null>(null);
 
   const visible = useMemo(
     () =>
@@ -59,8 +60,8 @@ function DashboardContent() {
             {greetingForNow()}, {firstName}!
           </h1>
           <p className="mt-1 max-w-xl text-[13px] text-app-muted">
-            Overview of your encrypted storage. Use My files for the full
-            library.
+            Overview of your encrypted storage. Click a file for details and
+            sharing.
           </p>
         </div>
         <AppHeaderActions
@@ -83,14 +84,23 @@ function DashboardContent() {
         <RecentFilesTable
           title="Recent files"
           files={visible}
-          onDownload={(f) => void download(f)}
-          onDelete={(id) => void remove(id)}
-          onShare={(f) => setShareFile(f)}
+          selectedId={selected?.id}
+          onSelect={setSelected}
         />
       </div>
 
-      {shareFile ? (
-        <ShareModal file={shareFile} onClose={() => setShareFile(null)} />
+      {selected ? (
+        <FileDetailDrawer
+          file={selected}
+          mode="owned"
+          onClose={() => setSelected(null)}
+          onDownload={(f) => void download(f)}
+          onDelete={(id) => {
+            void remove(id);
+            setSelected(null);
+          }}
+          onChanged={() => void reload()}
+        />
       ) : null}
     </div>
   );

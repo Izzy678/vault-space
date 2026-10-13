@@ -87,7 +87,7 @@ export function ShareModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(20,24,30,0.35)] p-6"
       role="presentation"
       onClick={onClose}
     >
@@ -95,7 +95,7 @@ export function ShareModal({
         role="dialog"
         aria-modal="true"
         aria-label="Share file"
-        className="w-full max-w-md rounded-[14px] border border-app-border bg-app-surface shadow-lg"
+        className="w-full max-w-[480px] rounded-[14px] border border-[#dcdfe3] bg-white shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b border-app-border px-5 py-4">

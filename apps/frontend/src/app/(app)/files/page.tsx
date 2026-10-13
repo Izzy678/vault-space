@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeaderActions } from "@/components/app/AppShell";
 import { CategoryCards } from "@/components/dashboard/CategoryCards";
 import { RecentFilesTable } from "@/components/dashboard/RecentFilesTable";
-import { ShareModal } from "@/components/files/ShareModal";
+import { FileDetailDrawer } from "@/components/files/FileDetailDrawer";
 import { UploadButtons, UploadQueue } from "@/components/files/UploadButtons";
 import { useVaultFiles } from "@/hooks/useVaultFiles";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -28,6 +28,11 @@ const VALID: FileCategory[] = [
   "other",
 ];
 
+type Selection =
+  | { kind: "owned"; file: FileRow }
+  | { kind: "shared"; file: FileRow; share: IncomingShare }
+  | null;
+
 function FilesContent() {
   const { user, token } = useAuth();
   const { unlocked } = useVault();
@@ -43,9 +48,10 @@ function FilesContent() {
     queue,
     error,
     counts,
+    reload,
   } = useVaultFiles(token, unlocked);
   const [filter, setFilter] = useState<FileCategory | "all">("all");
-  const [shareFile, setShareFile] = useState<FileRow | null>(null);
+  const [selection, setSelection] = useState<Selection>(null);
   const [incoming, setIncoming] = useState<IncomingShare[]>([]);
   const [shareError, setShareError] = useState<string | null>(null);
 
@@ -123,8 +129,7 @@ function FilesContent() {
             All encrypted files
           </h1>
           <p className="mt-1 max-w-xl text-[13px] text-app-muted">
-            Browse everything in your vault. Share re-wraps the file key to a
-            contact&apos;s public key in your browser.
+            Click a file to open details, share access, or download.
           </p>
         </div>
         <AppHeaderActions
@@ -152,9 +157,8 @@ function FilesContent() {
               : "No encrypted files yet. Upload to get started."
           }
           files={visible}
-          onDownload={(f) => void download(f)}
-          onDelete={(id) => void remove(id)}
-          onShare={(f) => setShareFile(f)}
+          selectedId={selection?.kind === "owned" ? selection.file.id : null}
+          onSelect={(f) => setSelection({ kind: "owned", file: f })}
         />
       </div>
 
@@ -163,17 +167,38 @@ function FilesContent() {
           title="Shared with me"
           emptyMessage="Nothing shared with you yet."
           files={sharedRows}
-          onDownload={(f) => void onDownloadShared(f)}
-          showShare={false}
-          showDelete={false}
+          selectedId={selection?.kind === "shared" ? selection.file.id : null}
+          onSelect={(f) => {
+            const share = incoming.find((s) => s.id === f.id);
+            if (!share) return;
+            setSelection({ kind: "shared", file: f, share });
+          }}
         />
       </div>
 
-      {shareFile ? (
-        <ShareModal
-          file={shareFile}
-          onClose={() => setShareFile(null)}
-          onShared={() => void loadIncoming()}
+      {selection?.kind === "owned" ? (
+        <FileDetailDrawer
+          file={selection.file}
+          mode="owned"
+          onClose={() => setSelection(null)}
+          onDownload={(f) => void download(f)}
+          onDelete={(id) => {
+            void remove(id);
+            setSelection(null);
+          }}
+          onChanged={() => {
+            void reload();
+            void loadIncoming();
+          }}
+        />
+      ) : null}
+
+      {selection?.kind === "shared" ? (
+        <FileDetailDrawer
+          file={selection.file}
+          mode="shared"
+          onClose={() => setSelection(null)}
+          onDownload={(f) => void onDownloadShared(f)}
         />
       ) : null}
     </div>
