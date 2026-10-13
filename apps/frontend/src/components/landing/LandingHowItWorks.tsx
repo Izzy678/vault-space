@@ -35,7 +35,13 @@ export function LandingHowItWorks() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="font-[family-name:var(--font-landing-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-semibold tracking-[-0.03em] text-[var(--site-text)]">
+          <p
+            className="text-[12px] font-medium uppercase tracking-[0.16em]"
+            style={{ color: "var(--marketing-glow-bright)" }}
+          >
+            Workflow
+          </p>
+          <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-semibold tracking-[-0.03em] text-[var(--site-text)]">
             How it works
           </h2>
           <p className="mt-3 max-w-[40ch] text-[15px] leading-relaxed text-[var(--site-muted)] md:text-[16px]">
@@ -43,7 +49,7 @@ export function LandingHowItWorks() {
           </p>
         </motion.div>
 
-        <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+        <ol className="mt-14 grid gap-5 md:grid-cols-3 md:gap-6">
           {STEPS.map((step, i) => (
             <motion.li
               key={step.n}
@@ -55,14 +61,18 @@ export function LandingHowItWorks() {
                 delay: reduce ? 0 : i * 0.07,
                 ease: [0.16, 1, 0.3, 1],
               }}
+              className="relative rounded-2xl border border-nav-border bg-[var(--marketing-surface)] p-6 md:p-7"
             >
-              <p className="font-mono text-[12px] tracking-[0.16em] text-[var(--site-muted)]">
+              <p
+                className="font-mono text-[13px] font-semibold tracking-[0.14em]"
+                style={{ color: "var(--marketing-glow-bright)" }}
+              >
                 {step.n}
               </p>
-              <h3 className="mt-3 text-[18px] font-semibold tracking-tight text-[var(--site-text)] md:text-[19px]">
+              <h3 className="mt-4 text-[18px] font-semibold tracking-tight text-[var(--site-text)] md:text-[19px]">
                 {step.title}
               </h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-[var(--site-muted)]">
+              <p className="mt-2 text-[14px] leading-relaxed text-[var(--site-muted)] md:text-[15px]">
                 {step.body}
               </p>
             </motion.li>

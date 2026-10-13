@@ -102,7 +102,7 @@ export function LandingNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-nav-border bg-nav-bg">
+    <header className="sticky top-0 z-50 border-b border-nav-border bg-[var(--marketing-glass)] backdrop-blur-xl">
       <div className="mx-auto flex h-[64px] max-w-[1280px] items-center justify-between gap-6 px-5 md:px-8 lg:px-10">
         <Link
           href="/"
@@ -165,7 +165,7 @@ export function LandingNav() {
       {open ? (
         <div
           id="mobile-nav"
-          className="border-t border-nav-border bg-nav-bg px-5 py-4 lg:hidden"
+          className="border-t border-nav-border bg-[var(--marketing-glass)] px-5 py-4 backdrop-blur-xl lg:hidden"
         >
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {links.map((link) => (

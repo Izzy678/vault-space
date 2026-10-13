@@ -7,8 +7,13 @@ export function LandingFooter() {
   const reduce = useReducedMotion();
 
   return (
-    <footer className="border-t border-nav-border bg-[var(--site-bg)]">
-      <div className="mx-auto max-w-[1100px] px-5 py-20 md:px-8 md:py-24 lg:px-10">
+    <footer className="relative overflow-hidden border-t border-nav-border bg-[var(--site-bg)]">
+      <div
+        className="pointer-events-none absolute bottom-0 left-1/2 h-56 w-[70%] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: "var(--marketing-glow-soft)" }}
+        aria-hidden
+      />
+      <div className="relative mx-auto max-w-[1100px] px-5 py-20 md:px-8 md:py-24 lg:px-10">
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -27,7 +32,11 @@ export function LandingFooter() {
           </div>
           <Link
             href="/register"
-            className="inline-flex h-12 shrink-0 items-center justify-center rounded-[10px] bg-nav-cta-bg px-7 text-[14px] font-semibold text-nav-cta-text transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-app-focus active:scale-[0.98]"
+            className="inline-flex h-12 shrink-0 items-center justify-center rounded-[10px] px-7 text-[14px] font-semibold transition-[transform,filter] hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-app-focus active:scale-[0.98]"
+            style={{
+              background: "var(--marketing-glow)",
+              color: "#041512",
+            }}
           >
             Create account
           </Link>
