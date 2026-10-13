@@ -129,6 +129,93 @@ export async function importPublicKeyPem(pem: string): Promise<CryptoKey> {
   );
 }
 
+/** Verify current passphrase, then re-wrap the same private key with a new one. */
+export async function changeVaultPassphrase(
+  currentPassphrase: string,
+  newPassphrase: string,
+  pkg: VaultPackagePayload,
+  iterations = DEFAULT_KDF_ITERATIONS,
+): Promise<{ payload: VaultPackagePayload; unlocked: UnlockedVault }> {
+  if (newPassphrase.length < 10) {
+    throw new Error("Use at least 10 characters for the vault passphrase");
+  }
+  const unlocked = await unlockVault(currentPassphrase, pkg);
+  const pkcs8 = await crypto.subtle.exportKey("pkcs8", unlocked.privateKey);
+  const wrap = await wrapPrivateKeyPkcs8(pkcs8, newPassphrase, iterations);
+  return {
+    payload: {
+      publicKeyPem: unlocked.publicKeyPem,
+      fingerprint: unlocked.fingerprint,
+      ...wrap,
+    },
+    unlocked,
+  };
+}
+
+/**
+ * Generate a new RSA keypair, re-wrap every file AES key, and wrap the new
+ * private key with the vault passphrase.
+ */
+export async function rotateVaultKeypair(
+  passphrase: string,
+  pkg: VaultPackagePayload,
+  wrappedFileKeys: { fileId: string; wrappedAesKey: string }[],
+  iterations = DEFAULT_KDF_ITERATIONS,
+): Promise<{
+  payload: VaultPackagePayload;
+  unlocked: UnlockedVault;
+  rewrapped: { fileId: string; wrappedAesKey: string }[];
+}> {
+  const old = await unlockVault(passphrase, pkg);
+  const { payload, unlocked } = await setupVault(passphrase, iterations);
+
+  const rewrapped: { fileId: string; wrappedAesKey: string }[] = [];
+  for (const row of wrappedFileKeys) {
+    const rawAes = await crypto.subtle.decrypt(
+      { name: "RSA-OAEP" },
+      old.privateKey,
+      asBufferSource(base64ToBuf(row.wrappedAesKey)),
+    );
+    const wrapped = await crypto.subtle.encrypt(
+      { name: "RSA-OAEP" },
+      unlocked.publicKey,
+      rawAes,
+    );
+    rewrapped.push({
+      fileId: row.fileId,
+      wrappedAesKey: bufToBase64(wrapped),
+    });
+  }
+
+  return { payload, unlocked, rewrapped };
+}
+
+async function wrapPrivateKeyPkcs8(
+  pkcs8: ArrayBuffer,
+  passphrase: string,
+  iterations: number,
+): Promise<
+  Pick<
+    VaultPackagePayload,
+    "wrappedPrivateKey" | "kdfSalt" | "kdfIterations" | "wrapIv"
+  >
+> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const wrappingKey = await deriveKey(passphrase, salt, iterations);
+  const wrapped = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: asBufferSource(iv) },
+    wrappingKey,
+    pkcs8,
+  );
+  return {
+    wrappedPrivateKey: bufToBase64(wrapped),
+    kdfSalt: bufToBase64(salt),
+    kdfIterations: iterations,
+    wrapIv: bufToBase64(iv),
+  };
+}
+
 async function deriveKey(
   passphrase: string,
   salt: Uint8Array,

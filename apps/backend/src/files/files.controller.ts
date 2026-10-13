@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Res,
   UploadedFile,
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator';
 import { FilesService } from './files.service';
 import { IntegrityDto } from './dto/integrity.dto';
+import { RewrapKeysDto } from './dto/rewrap-keys.dto';
 
 @Controller('files')
 @UseGuards(JwtAuthGuard)
@@ -28,6 +30,16 @@ export class FilesController {
   @Get()
   list(@CurrentUser() user: AuthUser) {
     return this.filesService.listForUser(user.id);
+  }
+
+  @Get('wrapped-keys')
+  listWrappedKeys(@CurrentUser() user: AuthUser) {
+    return this.filesService.listWrappedKeys(user.id);
+  }
+
+  @Patch('wrapped-keys')
+  rewrapKeys(@CurrentUser() user: AuthUser, @Body() dto: RewrapKeysDto) {
+    return this.filesService.rewrapKeys(user.id, dto.updates);
   }
 
   @Get(':id')

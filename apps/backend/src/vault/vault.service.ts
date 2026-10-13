@@ -51,6 +51,35 @@ export class VaultService {
     return this.toResponse(saved);
   }
 
+  /** Replace key package after passphrase change or keypair rotation (client-side crypto). */
+  async replaceForUser(
+    userId: string,
+    dto: UpsertVaultDto,
+    reason: 'passphrase' | 'rotate' = 'passphrase',
+  ) {
+    const vault = await this.vaultRepo.findOne({ where: { userId } });
+    if (!vault) {
+      throw new NotFoundException('Vault not set up');
+    }
+
+    vault.publicKeyPem = dto.publicKeyPem;
+    vault.fingerprint = dto.fingerprint;
+    vault.wrappedPrivateKey = Buffer.from(dto.wrappedPrivateKey, 'base64');
+    vault.kdfSalt = Buffer.from(dto.kdfSalt, 'base64');
+    vault.kdfIterations = dto.kdfIterations;
+    vault.wrapIv = Buffer.from(dto.wrapIv, 'base64');
+
+    const saved = await this.vaultRepo.save(vault);
+    this.activityService.log(
+      userId,
+      'key',
+      reason === 'rotate'
+        ? 'Keypair rotated (RSA-2048)'
+        : 'Vault passphrase changed',
+    );
+    return this.toResponse(saved);
+  }
+
   private toResponse(vault: VaultKeyPackage) {
     return {
       publicKeyPem: vault.publicKeyPem,

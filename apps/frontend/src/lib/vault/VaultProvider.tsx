@@ -13,8 +13,10 @@ import { apiJson } from "../api/client";
 import { logActivity } from "../activity";
 import { useAuth } from "../auth/AuthProvider";
 import {
+  changeVaultPassphrase,
   clearVaultSession,
   restoreVaultSession,
+  rotateVaultKeypair,
   saveVaultSession,
   setupVault,
   unlockVault,
@@ -30,6 +32,11 @@ type VaultState = {
   sessionReady: boolean;
   setup: (passphrase: string) => Promise<void>;
   unlock: (passphrase: string) => Promise<void>;
+  changePassphrase: (
+    currentPassphrase: string,
+    newPassphrase: string,
+  ) => Promise<void>;
+  rotateKeypair: (passphrase: string) => Promise<number>;
   lock: () => void;
   refreshStatus: () => Promise<void>;
   bumpActivity: () => void;
@@ -99,6 +106,55 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       setHasPackage(true);
       await persistUnlocked(keys);
       void logActivity(token, "auth", "Vault unlocked");
+    },
+    [token, persistUnlocked],
+  );
+
+  const changePassphrase = useCallback(
+    async (currentPassphrase: string, newPassphrase: string) => {
+      if (!token) throw new Error("Not signed in");
+      const pkg = await apiJson<VaultPackagePayload>("/vault", { token });
+      const { payload, unlocked: keys } = await changeVaultPassphrase(
+        currentPassphrase,
+        newPassphrase,
+        pkg,
+      );
+      await apiJson("/vault?reason=passphrase", {
+        method: "PATCH",
+        token,
+        body: JSON.stringify(payload),
+      });
+      await persistUnlocked(keys);
+    },
+    [token, persistUnlocked],
+  );
+
+  const rotateKeypair = useCallback(
+    async (passphrase: string) => {
+      if (!token) throw new Error("Not signed in");
+      const pkg = await apiJson<VaultPackagePayload>("/vault", { token });
+      const wrapped = await apiJson<
+        { fileId: string; wrappedAesKey: string }[]
+      >("/files/wrapped-keys", { token });
+      const { payload, unlocked: keys, rewrapped } = await rotateVaultKeypair(
+        passphrase,
+        pkg,
+        wrapped,
+      );
+      if (rewrapped.length > 0) {
+        await apiJson("/files/wrapped-keys", {
+          method: "PATCH",
+          token,
+          body: JSON.stringify({ updates: rewrapped }),
+        });
+      }
+      await apiJson("/vault?reason=rotate", {
+        method: "PATCH",
+        token,
+        body: JSON.stringify(payload),
+      });
+      await persistUnlocked(keys);
+      return rewrapped.length;
     },
     [token, persistUnlocked],
   );
@@ -180,6 +236,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       sessionReady,
       setup,
       unlock,
+      changePassphrase,
+      rotateKeypair,
       lock,
       refreshStatus,
       bumpActivity,
@@ -190,6 +248,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       sessionReady,
       setup,
       unlock,
+      changePassphrase,
+      rotateKeypair,
       lock,
       refreshStatus,
       bumpActivity,

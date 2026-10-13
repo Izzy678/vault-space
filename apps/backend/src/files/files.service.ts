@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { NeonS3StorageAdapter } from '../storage/neon-s3.storage';
 import { ActivityService } from '../activity/activity.service';
 import { FileObject } from './file-object.entity';
@@ -155,6 +155,49 @@ export class FilesService {
     file.integrityVerified = verified;
     await this.filesRepo.save(file);
     return this.toMetadata(file);
+  }
+
+  /** Wrapped AES keys for the owner — used when rotating the vault keypair. */
+  async listWrappedKeys(userId: string) {
+    const files = await this.filesRepo.find({
+      where: { ownerId: userId },
+      select: ['id'],
+    });
+    if (files.length === 0) return [];
+
+    const materials = await this.keysRepo.find({
+      where: { fileId: In(files.map((f) => f.id)) },
+    });
+
+    return materials.map((m) => ({
+      fileId: m.fileId,
+      wrappedAesKey: m.wrappedAesKey.toString('base64'),
+    }));
+  }
+
+  async rewrapKeys(
+    userId: string,
+    updates: { fileId: string; wrappedAesKey: string }[],
+  ) {
+    for (const item of updates) {
+      await this.findOwned(userId, item.fileId);
+      const material = await this.keysRepo.findOne({
+        where: { fileId: item.fileId },
+      });
+      if (!material) {
+        throw new NotFoundException(`Key material missing for ${item.fileId}`);
+      }
+      material.wrappedAesKey = Buffer.from(item.wrappedAesKey, 'base64');
+      await this.keysRepo.save(material);
+    }
+
+    this.activityService.log(
+      userId,
+      'key',
+      `Re-wrapped ${updates.length} file key${updates.length === 1 ? '' : 's'}`,
+    );
+
+    return { updated: updates.length };
   }
 
   private async findOwned(userId: string, fileId: string) {

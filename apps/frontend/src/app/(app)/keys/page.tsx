@@ -1,6 +1,12 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  FormEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { apiJson } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
@@ -19,7 +25,7 @@ type VaultMeta = VaultPackagePayload & { createdAt?: string; status?: string };
 
 export default function KeysPage() {
   const { token } = useAuth();
-  const { unlocked } = useVault();
+  const { unlocked, changePassphrase, rotateKeypair } = useVault();
   const [vault, setVault] = useState<VaultMeta | null>(null);
   const [contacts, setContacts] = useState<ContactRow[]>([]);
   const [fileCount, setFileCount] = useState(0);
@@ -28,6 +34,14 @@ export default function KeysPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [adding, setAdding] = useState(false);
+  const [passModal, setPassModal] = useState(false);
+  const [rotateModal, setRotateModal] = useState(false);
+  const [currentPass, setCurrentPass] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
+  const [rotatePass, setRotatePass] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -98,6 +112,54 @@ export default function KeysPage() {
     say("Contact removed");
   }
 
+  async function onChangePassphrase(e: FormEvent) {
+    e.preventDefault();
+    setModalError(null);
+    if (newPass !== confirmPass) {
+      setModalError("New passphrases do not match");
+      return;
+    }
+    setBusy(true);
+    try {
+      await changePassphrase(currentPass, newPass);
+      setPassModal(false);
+      setCurrentPass("");
+      setNewPass("");
+      setConfirmPass("");
+      await reload();
+      say("Passphrase updated");
+    } catch (err) {
+      setModalError(
+        err instanceof Error ? err.message : "Couldn’t change passphrase",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRotateKeypair(e: FormEvent) {
+    e.preventDefault();
+    setModalError(null);
+    setBusy(true);
+    try {
+      const n = await rotateKeypair(rotatePass);
+      setRotateModal(false);
+      setRotatePass("");
+      await reload();
+      say(
+        n === 0
+          ? "Keypair rotated"
+          : `Keypair rotated · re-wrapped ${n} file key${n === 1 ? "" : "s"}`,
+      );
+    } catch (err) {
+      setModalError(
+        err instanceof Error ? err.message : "Couldn’t rotate keypair",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (!unlocked) {
     return (
       <div className="px-7 py-10 text-sm text-app-muted">Unlocking vault…</div>
@@ -148,22 +210,24 @@ export default function KeysPage() {
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  say(
-                    "Change passphrase will re-wrap your private key in a future update",
-                  )
-                }
+                onClick={() => {
+                  setModalError(null);
+                  setCurrentPass("");
+                  setNewPass("");
+                  setConfirmPass("");
+                  setPassModal(true);
+                }}
                 className="rounded-[8px] border border-app-border px-3 py-1.5 text-xs font-medium hover:bg-app-bg"
               >
                 Change passphrase
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  say(
-                    "Rotate keypair needs re-wrapping every file key — coming with sharing",
-                  )
-                }
+                onClick={() => {
+                  setModalError(null);
+                  setRotatePass("");
+                  setRotateModal(true);
+                }}
                 className="rounded-[8px] border border-amber-300 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-50"
               >
                 Rotate keypair
@@ -300,6 +364,167 @@ export default function KeysPage() {
             )}
           </div>
         </section>
+
+        {passModal ? (
+          <Modal
+            title="Change vault passphrase"
+            onClose={() => !busy && setPassModal(false)}
+          >
+            <p className="text-[13px] text-app-muted">
+              Your RSA keypair stays the same. Only the wrap around the private
+              key is updated — nothing is sent as plaintext.
+            </p>
+            <form onSubmit={(e) => void onChangePassphrase(e)} className="mt-4 space-y-3">
+              <Field
+                label="Current passphrase"
+                type="password"
+                value={currentPass}
+                onChange={setCurrentPass}
+                autoComplete="current-password"
+              />
+              <Field
+                label="New passphrase"
+                type="password"
+                value={newPass}
+                onChange={setNewPass}
+                autoComplete="new-password"
+                minLength={10}
+              />
+              <Field
+                label="Confirm new passphrase"
+                type="password"
+                value={confirmPass}
+                onChange={setConfirmPass}
+                autoComplete="new-password"
+                minLength={10}
+              />
+              {modalError ? (
+                <p className="text-sm text-app-danger">{modalError}</p>
+              ) : null}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setPassModal(false)}
+                  className="rounded-[10px] border border-app-border px-3 py-2 text-sm font-medium hover:bg-app-bg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-white hover:bg-app-primary-hover disabled:opacity-60"
+                >
+                  {busy ? "Updating…" : "Update passphrase"}
+                </button>
+              </div>
+            </form>
+          </Modal>
+        ) : null}
+
+        {rotateModal ? (
+          <Modal
+            title="Rotate keypair"
+            onClose={() => !busy && setRotateModal(false)}
+          >
+            <p className="text-[13px] text-app-muted">
+              Generates a new RSA-2048 keypair and re-wraps{" "}
+              <strong className="font-medium text-app-text">
+                {fileCount} file {fileCount === 1 ? "key" : "keys"}
+              </strong>{" "}
+              in this browser. Ciphertext on the server is unchanged.
+            </p>
+            <form onSubmit={(e) => void onRotateKeypair(e)} className="mt-4 space-y-3">
+              <Field
+                label="Vault passphrase"
+                type="password"
+                value={rotatePass}
+                onChange={setRotatePass}
+                autoComplete="current-password"
+              />
+              {modalError ? (
+                <p className="text-sm text-app-danger">{modalError}</p>
+              ) : null}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setRotateModal(false)}
+                  className="rounded-[10px] border border-app-border px-3 py-2 text-sm font-medium hover:bg-app-bg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100 disabled:opacity-60"
+                >
+                  {busy ? "Rotating…" : "Rotate keypair"}
+                </button>
+              </div>
+            </form>
+          </Modal>
+        ) : null}
       </div>
+  );
+}
+
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="w-full max-w-md rounded-[14px] border border-app-border bg-app-surface p-5 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-base font-semibold text-app-text">{title}</h3>
+        <div className="mt-2">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  type,
+  value,
+  onChange,
+  autoComplete,
+  minLength,
+}: {
+  label: string;
+  type: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete?: string;
+  minLength?: number;
+}) {
+  return (
+    <label className="block text-sm">
+      <span className="mb-1 block text-app-muted">{label}</span>
+      <input
+        type={type}
+        required
+        value={value}
+        minLength={minLength}
+        autoComplete={autoComplete}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
+      />
+    </label>
   );
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator';
 import { VaultService } from './vault.service';
@@ -17,5 +25,15 @@ export class VaultController {
   @Put()
   put(@CurrentUser() user: AuthUser, @Body() dto: UpsertVaultDto) {
     return this.vaultService.createForUser(user.id, dto);
+  }
+
+  @Patch()
+  patch(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpsertVaultDto,
+    @Query('reason') reason?: string,
+  ) {
+    const kind = reason === 'rotate' ? 'rotate' : 'passphrase';
+    return this.vaultService.replaceForUser(user.id, dto, kind);
   }
 }
