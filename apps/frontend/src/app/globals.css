@@ -20,13 +20,12 @@
   --site-text: var(--app-text);
   --site-muted: var(--app-muted);
   --site-orbit-color: var(--app-muted);
-  /* Marketing landing atmosphere (teal energy on charcoal neutrals). */
-  --marketing-glow: #1a9b8c;
-  --marketing-glow-bright: #148f81;
-  --marketing-glow-soft: color-mix(in srgb, var(--marketing-glow) 16%, transparent);
-  --marketing-surface: color-mix(in srgb, var(--site-text) 4%, var(--site-bg));
-  --marketing-glass: color-mix(in srgb, var(--site-bg) 78%, transparent);
-  --marketing-grid: color-mix(in srgb, var(--site-text) 7%, transparent);
+  /* Marketing atmosphere — same charcoal family as the app (no separate brand accent). */
+  --marketing-glow-soft: color-mix(in srgb, var(--site-text) 8%, transparent);
+  --marketing-surface: var(--app-surface);
+  --marketing-glass: color-mix(in srgb, var(--app-surface) 88%, transparent);
+  --marketing-grid: color-mix(in srgb, var(--site-text) 8%, transparent);
+  --marketing-wash: color-mix(in srgb, var(--site-text) 5%, transparent);
 
   --app-bg: #f4f5f6;
   --app-surface: #ffffff;
@@ -235,12 +234,11 @@ html.dark,
   --site-text: #fafbfc;
   --site-muted: #a1a8b3;
   --site-orbit-color: #c7cdd4;
-  --marketing-glow: #2dd4bf;
-  --marketing-glow-bright: #5eead4;
-  --marketing-glow-soft: color-mix(in srgb, var(--marketing-glow) 22%, transparent);
-  --marketing-surface: color-mix(in srgb, var(--site-text) 5%, var(--site-bg));
-  --marketing-glass: color-mix(in srgb, var(--site-bg) 78%, transparent);
-  --marketing-grid: color-mix(in srgb, var(--site-text) 9%, transparent);
+  --marketing-glow-soft: color-mix(in srgb, var(--site-text) 10%, transparent);
+  --marketing-surface: var(--app-surface);
+  --marketing-glass: color-mix(in srgb, var(--app-surface) 82%, transparent);
+  --marketing-grid: color-mix(in srgb, var(--site-text) 10%, transparent);
+  --marketing-wash: color-mix(in srgb, var(--site-text) 6%, transparent);
 
   --background: var(--app-bg);
   --foreground: var(--app-text);

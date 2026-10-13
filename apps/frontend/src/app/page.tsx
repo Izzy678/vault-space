@@ -1,3 +1,4 @@
+import { LandingFAQ } from "@/components/landing/LandingFAQ";
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHero } from "@/components/landing/LandingHero";
@@ -12,9 +13,7 @@ import { LandingSecurity } from "@/components/landing/LandingSecurity";
  *   @/components/landing/LandingHero.legacy
  *   @/components/landing/hero.legacy/*
  *
- * To restore it, swap the import above for:
- *   import { LandingHeroLegacy as LandingHero } from "@/components/landing/LandingHero.legacy";
- * and remove the section components below if you only want the old single-hero page.
+ * To restore it, swap LandingHero for LandingHeroLegacy and trim sections below.
  */
 
 export default function Home() {
@@ -24,8 +23,9 @@ export default function Home() {
       <main>
         <LandingHero />
         <LandingFeatures />
-        <LandingSecurity />
         <LandingHowItWorks />
+        <LandingSecurity />
+        <LandingFAQ />
       </main>
       <LandingFooter />
     </div>

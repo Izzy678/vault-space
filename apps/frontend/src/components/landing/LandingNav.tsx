@@ -5,10 +5,10 @@ import { useState } from "react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
 const links = [
-  { label: "Home", href: "/" },
   { label: "Features", href: "#features" },
-  { label: "Security", href: "#security" },
   { label: "How it works", href: "#how-it-works" },
+  { label: "Security", href: "#security" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 function LogoMark() {
