@@ -84,10 +84,10 @@ export class VaultService {
     return {
       publicKeyPem: vault.publicKeyPem,
       fingerprint: vault.fingerprint,
-      wrappedPrivateKey: vault.wrappedPrivateKey.toString('base64'),
-      kdfSalt: vault.kdfSalt.toString('base64'),
+      wrappedPrivateKey: Buffer.from(vault.wrappedPrivateKey).toString('base64'),
+      kdfSalt: Buffer.from(vault.kdfSalt).toString('base64'),
       kdfIterations: vault.kdfIterations,
-      wrapIv: vault.wrapIv.toString('base64'),
+      wrapIv: Buffer.from(vault.wrapIv).toString('base64'),
       status: vault.status,
       createdAt: vault.createdAt,
     };

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -161,7 +162,7 @@ export class FilesService {
   async listWrappedKeys(userId: string) {
     const files = await this.filesRepo.find({
       where: { ownerId: userId },
-      select: ['id'],
+      select: { id: true },
     });
     if (files.length === 0) return [];
 
@@ -171,7 +172,7 @@ export class FilesService {
 
     return materials.map((m) => ({
       fileId: m.fileId,
-      wrappedAesKey: m.wrappedAesKey.toString('base64'),
+      wrappedAesKey: this.byteaToBase64(m.wrappedAesKey),
     }));
   }
 
@@ -180,6 +181,9 @@ export class FilesService {
     updates: { fileId: string; wrappedAesKey: string }[],
   ) {
     for (const item of updates) {
+      if (!item?.fileId || !item?.wrappedAesKey) {
+        throw new BadRequestException('Invalid rewrap payload');
+      }
       await this.findOwned(userId, item.fileId);
       const material = await this.keysRepo.findOne({
         where: { fileId: item.fileId },
@@ -198,6 +202,17 @@ export class FilesService {
     );
 
     return { updated: updates.length };
+  }
+
+  private byteaToBase64(value: Buffer | Uint8Array | string): string {
+    if (typeof value === 'string') {
+      // pg sometimes returns hex (\x…) or already-base64 depending on driver config
+      if (value.startsWith('\\x')) {
+        return Buffer.from(value.slice(2), 'hex').toString('base64');
+      }
+      return value;
+    }
+    return Buffer.from(value).toString('base64');
   }
 
   private async findOwned(userId: string, fileId: string) {

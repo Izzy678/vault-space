@@ -39,7 +39,18 @@ export class FilesController {
 
   @Patch('wrapped-keys')
   rewrapKeys(@CurrentUser() user: AuthUser, @Body() dto: RewrapKeysDto) {
-    return this.filesService.rewrapKeys(user.id, dto.updates);
+    const updates = Array.isArray(dto?.updates) ? dto.updates : [];
+    if (updates.length === 0) {
+      throw new BadRequestException('updates must be a non-empty array');
+    }
+    for (const item of updates) {
+      if (!item?.fileId || !item?.wrappedAesKey) {
+        throw new BadRequestException(
+          'each update needs fileId and wrappedAesKey',
+        );
+      }
+    }
+    return this.filesService.rewrapKeys(user.id, updates);
   }
 
   @Get(':id')

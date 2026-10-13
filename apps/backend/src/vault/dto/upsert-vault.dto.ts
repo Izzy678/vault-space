@@ -1,4 +1,4 @@
-import { IsInt, IsString, Min, MinLength } from 'class-validator';
+import { IsNumber, IsString, Min, MinLength } from 'class-validator';
 
 export class UpsertVaultDto {
   @IsString()
@@ -11,17 +11,20 @@ export class UpsertVaultDto {
 
   /** base64 */
   @IsString()
+  @MinLength(16)
   wrappedPrivateKey: string;
 
   /** base64 */
   @IsString()
+  @MinLength(8)
   kdfSalt: string;
 
-  @IsInt()
+  @IsNumber()
   @Min(100_000)
   kdfIterations: number;
 
   /** base64 */
   @IsString()
+  @MinLength(8)
   wrapIv: string;
 }
