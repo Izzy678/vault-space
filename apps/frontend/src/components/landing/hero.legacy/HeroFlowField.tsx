@@ -5,10 +5,16 @@ import { useEffect, useRef } from "react";
 import { createOrbitRenderer } from "./orbitRenderer";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
-const FRAME_INTERVAL = 1000 / 30;
+const FRAME_INTERVAL = 1000 / 60;
+
+function entrance(time: number, start: number, end: number) {
+  const progress = Math.max(0, Math.min(1, (time - start) / (end - start)));
+  return progress * progress * (3 - 2 * progress);
+}
 
 export function HeroFlowField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const elapsedRef = useRef(0);
   const reduce = useReducedMotion();
   const { theme } = useTheme();
 
@@ -18,29 +24,38 @@ export function HeroFlowField() {
     const hero = canvas.closest("section");
     let renderer: ReturnType<typeof createOrbitRenderer> = null;
     let frame = 0;
-    let elapsed = 0;
+    let elapsed = elapsedRef.current;
     let previousTime = 0;
     let previousDraw = 0;
     let inView = true;
     let contextLost = false;
+    const reducedMotion =
+      reduce ?? window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const pointer = { x: 0, y: 0, strength: 0 };
-    let pointerTarget = 0;
+    let pointerStrength = 0;
 
-    const draw = () => renderer?.draw(elapsed, pointer);
+    const draw = () => {
+      renderer?.draw(elapsed, pointer, {
+        strands: reducedMotion ? 1 : entrance(elapsed, 0, 2),
+        dots: reducedMotion ? 1 : entrance(elapsed, 1.2, 3),
+        comets: reducedMotion ? 1 : entrance(elapsed, 3, 5),
+      });
+    };
     const tick = (time: number) => {
       frame = 0;
-      if (!renderer || document.hidden || !inView || contextLost || reduce)
+      if (!renderer || document.hidden || !inView || contextLost || reducedMotion)
         return;
       const delta = previousTime
         ? Math.min((time - previousTime) / 1000, 0.1)
         : 0;
       elapsed += delta;
+      elapsedRef.current = elapsed;
       pointer.strength +=
-        (pointerTarget - pointer.strength) * Math.min(1, delta * 12);
+        (pointerStrength - pointer.strength) * Math.min(1, delta * 12);
       previousTime = time;
       if (!previousDraw || time - previousDraw >= FRAME_INTERVAL) {
         draw();
-        previousDraw = time;
+        previousDraw = time - ((time - previousDraw) % FRAME_INTERVAL);
       }
       frame = requestAnimationFrame(tick);
     };
@@ -48,7 +63,7 @@ export function HeroFlowField() {
       cancelAnimationFrame(frame);
       frame = 0;
       previousTime = previousDraw = 0;
-      if (renderer && !document.hidden && inView && !contextLost && !reduce) {
+      if (renderer && !document.hidden && inView && !contextLost && !reducedMotion) {
         frame = requestAnimationFrame(tick);
       }
     };
@@ -68,14 +83,15 @@ export function HeroFlowField() {
       updatePlayback();
     };
     const onPointerMove = (event: PointerEvent) => {
-      if (reduce || event.pointerType === "touch") return;
+      if (reducedMotion || event.pointerType === "touch") return;
       const bounds = canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
       pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
       pointer.y = 1 - ((event.clientY - bounds.top) / bounds.height) * 2;
-      pointerTarget = 0.045;
+      pointerStrength = 0.045;
     };
     const onPointerLeave = () => {
-      pointerTarget = 0;
+      pointerStrength = 0;
     };
     const onContextLost = (event: Event) => {
       event.preventDefault();
