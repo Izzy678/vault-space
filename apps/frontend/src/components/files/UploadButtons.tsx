@@ -25,17 +25,10 @@ export function UploadButtons({
       <button
         type="button"
         onClick={() => ref.current?.click()}
-        className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-app-border bg-app-surface px-3 text-xs font-medium text-app-text shadow-app transition hover:bg-app-bg"
+        className="inline-flex h-8 items-center gap-1.5 rounded-[10px] bg-app-primary px-3.5 text-xs font-semibold text-white transition hover:bg-app-primary-hover"
       >
         <IconUpload />
-        Upload
-      </button>
-      <button
-        type="button"
-        onClick={() => ref.current?.click()}
-        className="inline-flex h-8 items-center gap-1 rounded-[10px] bg-app-primary px-3.5 text-xs font-semibold text-white transition hover:bg-app-primary-hover"
-      >
-        + Encrypt & upload
+        Encrypt & upload
       </button>
     </>
   );
