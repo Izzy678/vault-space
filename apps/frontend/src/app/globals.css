@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Shared VaultSpace palette: soft neutrals and charcoal actions. */
+:root {
+  --nav-bg: var(--app-sidebar);
+  --nav-border: var(--app-border);
+  --nav-text: var(--app-text);
+  --nav-muted: var(--app-muted);
+  --nav-btn-border: var(--app-input-border);
+  --nav-btn-bg: transparent;
+  --nav-cta-bg: var(--app-primary);
+  --nav-cta-text: #ffffff;
+  --accent: var(--app-accent);
+  --accent-hover: var(--app-accent-hover);
+  --site-bg: var(--app-bg);
+  --site-text: var(--app-text);
+  --site-muted: var(--app-muted);
+  --site-orbit-color: var(--app-muted);
+
+  --app-bg: #f4f5f6;
+  --app-surface: #ffffff;
+  --app-sidebar: #fafbfc;
+  --app-border: #e5e7eb;
+  --app-input-border: #d8dce2;
+  --app-text: #202326;
+  --app-muted: #737b87;
+  --app-muted-2: #a1a8b3;
+  --app-subtle: #969da7;
+  --app-primary: #202326;
+  --app-primary-hover: #34383d;
+  --app-accent: #202326;
+  --app-accent-hover: #34383d;
+  --app-accent-soft: #eceff2;
+  --app-focus: #525961;
+  --app-success: #58616c;
+  --app-danger: #ef4444;
+  --app-danger-soft: #fef2f2;
+  --app-cat-images: #3b82f6;
+  --app-cat-documents: #ef4444;
+  --app-cat-videos: #eab308;
+  --app-cat-archives: #22c55e;
+  --app-cat-audio: #a855f7;
+  --app-cat-other: #8b5cf6;
+  --app-radius: 14px;
+  --app-radius-sm: 10px;
+  --app-shadow: 0 1px 2px rgb(16 24 40 / 4%), 0 1px 3px rgb(16 24 40 / 6%);
+}
+
+@theme inline {
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-border: var(--nav-border);
+  --color-nav-text: var(--nav-text);
+  --color-nav-muted: var(--nav-muted);
+  --color-nav-btn-border: var(--nav-btn-border);
+  --color-nav-btn-bg: var(--nav-btn-bg);
+  --color-nav-cta-bg: var(--nav-cta-bg);
+  --color-nav-cta-text: var(--nav-cta-text);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+
+  --color-app-bg: var(--app-bg);
+  --color-app-surface: var(--app-surface);
+  --color-app-sidebar: var(--app-sidebar);
+  --color-app-border: var(--app-border);
+  --color-app-input-border: var(--app-input-border);
+  --color-app-text: var(--app-text);
+  --color-app-muted: var(--app-muted);
+  --color-app-muted-2: var(--app-muted-2);
+  --color-app-subtle: var(--app-subtle);
+  --color-app-primary: var(--app-primary);
+  --color-app-primary-hover: var(--app-primary-hover);
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-hover: var(--app-accent-hover);
+  --color-app-accent-soft: var(--app-accent-soft);
+  --color-app-focus: var(--app-focus);
+  --color-app-success: var(--app-success);
+  --color-app-danger: var(--app-danger);
+  --color-app-danger-soft: var(--app-danger-soft);
+  --color-app-cat-images: var(--app-cat-images);
+  --color-app-cat-documents: var(--app-cat-documents);
+  --color-app-cat-videos: var(--app-cat-videos);
+  --color-app-cat-archives: var(--app-cat-archives);
+  --color-app-cat-audio: var(--app-cat-audio);
+  --color-app-cat-other: var(--app-cat-other);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-app: var(--app-radius);
+  --radius-app-sm: var(--app-radius-sm);
+  --shadow-app: var(--app-shadow);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.app-root ::selection {
+  background: color-mix(in srgb, var(--app-accent) 20%, transparent);
+}
+
+[data-theme="dark"] .marketing-page {
+  --accent: #d3d7dd;
+  --accent-hover: #f4f5f6;
+  --nav-bg: #202326;
+  --nav-border: #34383d;
+  --nav-text: #fafbfc;
+  --nav-muted: #a1a8b3;
+  --nav-btn-border: #525961;
+  --nav-cta-bg: #fafbfc;
+  --nav-cta-text: #202326;
+  --site-bg: #202326;
+  --site-text: #fafbfc;
+  --site-muted: #a1a8b3;
+  --site-orbit-color: #c7cdd4;
+}
+
+@layer base {
+  :where(.app-root, .marketing-page) :where(a, button):focus-visible {
+    outline: 2px solid var(--app-focus);
+    outline-offset: 3px;
+  }
+}
