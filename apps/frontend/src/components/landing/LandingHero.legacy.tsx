@@ -50,10 +50,10 @@ export function LandingHeroLegacy() {
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="#how-it-works"
+              href="/login"
               className="inline-flex h-12 min-w-[168px] items-center justify-center rounded-full border border-nav-btn-border bg-nav-btn-bg px-6 text-[13px] font-medium tracking-[0.04em] text-nav-text backdrop-blur-sm transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-app-focus active:scale-[0.98] md:h-14"
             >
-              See how it works
+              Sign in
             </Link>
             <Link
               href="/register"
