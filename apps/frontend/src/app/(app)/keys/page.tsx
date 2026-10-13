@@ -19,6 +19,7 @@ import {
 } from "@/lib/contacts";
 import type { VaultPackagePayload } from "@/lib/crypto";
 import { formatFingerprint } from "@/lib/settings";
+import { SecretInput } from "@/components/ui/secret-input";
 import { useVault } from "@/lib/vault/VaultProvider";
 
 type VaultMeta = VaultPackagePayload & { createdAt?: string; status?: string };
@@ -513,18 +514,33 @@ function Field({
   autoComplete?: string;
   minLength?: number;
 }) {
+  const inputClass =
+    "w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20";
+
   return (
     <label className="block text-sm">
       <span className="mb-1 block text-app-muted">{label}</span>
-      <input
-        type={type}
-        required
-        value={value}
-        minLength={minLength}
-        autoComplete={autoComplete}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
-      />
+      {type === "password" ? (
+        <SecretInput
+          required
+          value={value}
+          minLength={minLength}
+          autoComplete={autoComplete}
+          onChange={(e) => onChange(e.target.value)}
+          secretLabel="passphrase"
+          className={inputClass}
+        />
+      ) : (
+        <input
+          type={type}
+          required
+          value={value}
+          minLength={minLength}
+          autoComplete={autoComplete}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputClass}
+        />
+      )}
     </label>
   );
 }

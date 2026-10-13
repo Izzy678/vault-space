@@ -3,9 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  AuthField,
+  AuthSecretField,
   AuthShell,
-  authInputClass,
   authPrimaryBtnClass,
 } from "@/components/auth/AuthShell";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -118,31 +117,27 @@ export default function SecurityPage() {
       }
     >
       <form onSubmit={onSubmit} className="space-y-4">
-        <AuthField label="Vault passphrase">
-          <input
-            type="password"
+        <AuthSecretField
+          label="Vault passphrase"
+          secretLabel="passphrase"
+          required
+          autoComplete="off"
+          value={passphrase}
+          onChange={(e) => setPassphrase(e.target.value)}
+          placeholder={
+            mode === "setup" ? "At least 10 characters" : "Your vault passphrase"
+          }
+        />
+        {mode === "setup" ? (
+          <AuthSecretField
+            label="Confirm passphrase"
+            secretLabel="passphrase"
             required
             autoComplete="off"
-            value={passphrase}
-            onChange={(e) => setPassphrase(e.target.value)}
-            className={authInputClass}
-            placeholder={
-              mode === "setup" ? "At least 10 characters" : "Your vault passphrase"
-            }
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="Repeat passphrase"
           />
-        </AuthField>
-        {mode === "setup" ? (
-          <AuthField label="Confirm passphrase">
-            <input
-              type="password"
-              required
-              autoComplete="off"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className={authInputClass}
-              placeholder="Repeat passphrase"
-            />
-          </AuthField>
         ) : null}
         {error ? <p className="text-sm text-app-danger">{error}</p> : null}
         <button

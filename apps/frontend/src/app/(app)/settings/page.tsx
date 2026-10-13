@@ -19,6 +19,7 @@ import {
   fetchTwofaStatus,
   type TwofaSetup,
 } from "@/lib/twofa";
+import { SecretInput } from "@/components/ui/secret-input";
 import { useVault } from "@/lib/vault/VaultProvider";
 
 type SessionRow = {
@@ -528,8 +529,7 @@ export default function SettingsPage() {
                   <span className="text-[12px] font-medium text-app-muted">
                     Current password
                   </span>
-                  <input
-                    type="password"
+                  <SecretInput
                     required
                     autoComplete="current-password"
                     value={currentPassword}
@@ -541,8 +541,7 @@ export default function SettingsPage() {
                   <span className="text-[12px] font-medium text-app-muted">
                     New password
                   </span>
-                  <input
-                    type="password"
+                  <SecretInput
                     required
                     minLength={8}
                     autoComplete="new-password"
@@ -555,8 +554,7 @@ export default function SettingsPage() {
                   <span className="text-[12px] font-medium text-app-muted">
                     Confirm new password
                   </span>
-                  <input
-                    type="password"
+                  <SecretInput
                     required
                     minLength={8}
                     autoComplete="new-password"

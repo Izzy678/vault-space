@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useId, type ComponentProps } from "react";
 import { LogoMark } from "@/components/app/icons";
+import { SecretInput } from "@/components/ui/secret-input";
 
 function AuthBrand({ className = "" }: { className?: string }) {
   return (
@@ -97,6 +101,31 @@ export function AuthField({
       <span>{label}</span>
       <div className="mt-1.5">{children}</div>
     </label>
+  );
+}
+
+export function AuthSecretField({
+  label,
+  secretLabel,
+  ...props
+}: {
+  label: string;
+  secretLabel?: string;
+} & Omit<ComponentProps<"input">, "type" | "className">) {
+  const id = useId();
+
+  return (
+    <div className="block text-sm text-app-muted">
+      <label htmlFor={id}>{label}</label>
+      <div className="mt-1.5">
+        <SecretInput
+          id={id}
+          secretLabel={secretLabel ?? label.toLowerCase()}
+          className={authInputClass}
+          {...props}
+        />
+      </div>
+    </div>
   );
 }
 

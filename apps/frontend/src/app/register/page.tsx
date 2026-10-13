@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AuthField,
+  AuthSecretField,
   AuthShell,
   authInputClass,
   authPrimaryBtnClass,
@@ -72,18 +73,15 @@ export default function RegisterPage() {
             placeholder="you@example.com"
           />
         </AuthField>
-        <AuthField label="Password">
-          <input
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={authInputClass}
-            placeholder="At least 8 characters"
-          />
-        </AuthField>
+        <AuthSecretField
+          label="Password"
+          required
+          minLength={8}
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="At least 8 characters"
+        />
         {error ? (
           <p role="alert" className="text-sm text-app-danger">
             {error}
