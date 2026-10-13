@@ -262,7 +262,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={savingName || !nameDirty || !nameDraft.trim()}
-                  className="shrink-0 rounded-[10px] bg-app-primary px-4 py-2 text-xs font-semibold text-white hover:bg-app-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
+                  className="shrink-0 rounded-[10px] bg-app-primary px-4 py-2 text-xs font-semibold text-app-primary-fg hover:bg-app-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {savingName ? "Saving…" : "Save"}
                 </button>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={twofaBusy}
-                    className="rounded-[10px] bg-app-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                    className="rounded-[10px] bg-app-primary px-4 py-2 text-xs font-semibold text-app-primary-fg disabled:opacity-60"
                   >
                     {twofaBusy ? "Enabling…" : "Confirm and enable"}
                   </button>
@@ -591,7 +591,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={passwordBusy}
-                  className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-white hover:bg-app-primary-hover disabled:opacity-60"
+                  className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-app-primary-fg hover:bg-app-primary-hover disabled:opacity-60"
                 >
                   {passwordBusy ? "Updating…" : "Update password"}
                 </button>

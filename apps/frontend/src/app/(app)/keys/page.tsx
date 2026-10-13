@@ -303,7 +303,7 @@ export default function KeysPage() {
             <button
               type="submit"
               disabled={adding}
-              className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-white hover:bg-app-primary-hover disabled:opacity-60"
+              className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-app-primary-fg hover:bg-app-primary-hover disabled:opacity-60"
             >
               {adding ? "Adding…" : "Add contact"}
             </button>
@@ -413,7 +413,7 @@ export default function KeysPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-white hover:bg-app-primary-hover disabled:opacity-60"
+                  className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-app-primary-fg hover:bg-app-primary-hover disabled:opacity-60"
                 >
                   {busy ? "Updating…" : "Update passphrase"}
                 </button>

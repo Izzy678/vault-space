@@ -25,7 +25,7 @@ export function UploadButtons({
       <button
         type="button"
         onClick={() => ref.current?.click()}
-        className="inline-flex h-8 items-center gap-1.5 rounded-[10px] bg-app-primary px-3.5 text-xs font-semibold text-white transition hover:bg-app-primary-hover"
+        className="inline-flex h-8 items-center gap-1.5 rounded-[10px] bg-app-primary px-3.5 text-xs font-semibold text-app-primary-fg transition hover:bg-app-primary-hover"
       >
         <IconUpload />
         Encrypt & upload

@@ -104,7 +104,7 @@ export const authInputClass =
   "h-11 w-full rounded-[9px] border border-app-input-border bg-app-surface px-3.5 text-sm text-app-text shadow-[0_1px_2px_rgb(16_24_40/2%)] outline-none transition placeholder:text-app-muted-2 focus:border-app-focus focus:ring-2 focus:ring-app-focus/15";
 
 export const authPrimaryBtnClass =
-  "inline-flex h-11 w-full items-center justify-center rounded-[9px] bg-app-primary px-4 text-sm font-semibold text-white outline-none transition hover:bg-app-primary-hover focus-visible:ring-2 focus-visible:ring-app-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex h-11 w-full items-center justify-center rounded-[9px] bg-app-primary px-4 text-sm font-semibold text-app-primary-fg outline-none transition hover:bg-app-primary-hover focus-visible:ring-2 focus-visible:ring-app-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg disabled:cursor-not-allowed disabled:opacity-60";
 
 export const authLinkClass =
   "rounded-sm font-medium text-app-accent outline-none transition hover:text-app-accent-hover hover:underline focus-visible:ring-2 focus-visible:ring-app-focus focus-visible:ring-offset-2";

@@ -32,6 +32,7 @@
   --app-subtle: #969da7;
   --app-primary: #202326;
   --app-primary-hover: #34383d;
+  --app-primary-fg: #ffffff;
   --app-accent: #202326;
   --app-accent-hover: #34383d;
   --app-accent-soft: #eceff2;
@@ -57,12 +58,12 @@
   --popover: var(--app-surface);
   --popover-foreground: var(--app-text);
   --primary: var(--app-primary);
-  --primary-foreground: #ffffff;
+  --primary-foreground: var(--app-primary-fg);
   --secondary: var(--app-accent-soft);
   --secondary-foreground: var(--app-text);
   --muted: #f0f2f4;
   --muted-foreground: var(--app-muted);
-  --accent-foreground: #ffffff;
+  --accent-foreground: var(--app-primary-fg);
   --destructive: var(--app-danger);
   --border: var(--app-border);
   --input: var(--app-input-border);
@@ -76,7 +77,7 @@
   --sidebar: var(--app-sidebar);
   --sidebar-foreground: var(--app-text);
   --sidebar-primary: var(--app-primary);
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: var(--app-primary-fg);
   --sidebar-accent: var(--app-accent-soft);
   --sidebar-accent-foreground: var(--app-text);
   --sidebar-border: var(--app-border);
@@ -106,6 +107,7 @@
   --color-app-subtle: var(--app-subtle);
   --color-app-primary: var(--app-primary);
   --color-app-primary-hover: var(--app-primary-hover);
+  --color-app-primary-fg: var(--app-primary-fg);
   --color-app-accent: var(--app-accent);
   --color-app-accent-hover: var(--app-accent-hover);
   --color-app-accent-soft: var(--app-accent-soft);
@@ -203,6 +205,7 @@ html.dark,
   --app-subtle: #8b949e;
   --app-primary: #f2f4f6;
   --app-primary-hover: #ffffff;
+  --app-primary-fg: #121417;
   --app-accent: #f2f4f6;
   --app-accent-hover: #ffffff;
   --app-accent-soft: #2a2f36;
@@ -233,12 +236,12 @@ html.dark,
   --popover: var(--app-surface);
   --popover-foreground: var(--app-text);
   --primary: var(--app-primary);
-  --primary-foreground: #121417;
+  --primary-foreground: var(--app-primary-fg);
   --secondary: var(--app-accent-soft);
   --secondary-foreground: var(--app-text);
   --muted: #242830;
   --muted-foreground: var(--app-muted);
-  --accent-foreground: #121417;
+  --accent-foreground: var(--app-primary-fg);
   --destructive: var(--app-danger);
   --border: var(--app-border);
   --input: var(--app-input-border);
@@ -246,7 +249,7 @@ html.dark,
   --sidebar: var(--app-sidebar);
   --sidebar-foreground: var(--app-text);
   --sidebar-primary: var(--app-primary);
-  --sidebar-primary-foreground: #121417;
+  --sidebar-primary-foreground: var(--app-primary-fg);
   --sidebar-accent: var(--app-accent-soft);
   --sidebar-accent-foreground: var(--app-text);
   --sidebar-border: var(--app-border);
