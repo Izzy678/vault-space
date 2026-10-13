@@ -523,7 +523,7 @@ function Field({
         minLength={minLength}
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
+        className="w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
       />
     </label>
   );

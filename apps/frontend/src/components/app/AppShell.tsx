@@ -13,7 +13,9 @@ import {
   type RefObject,
   type ReactNode,
 } from "react";
+import { Moon, Sun } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { useVault } from "@/lib/vault/VaultProvider";
 import { apiJson } from "@/lib/api/client";
 import {
@@ -78,6 +80,7 @@ function AppShellInner({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const { user, token } = useAuth();
   const { unlocked, lock } = useVault();
+  const { theme, toggleTheme } = useTheme();
   const [mobileNav, setMobileNav] = useState(false);
   const [files, setFiles] = useState<FileRow[]>([]);
   const collapsed = useSyncExternalStore(
@@ -328,6 +331,20 @@ function AppShellInner({ children }: { children: ReactNode }) {
                 </p>
               </div>
             ) : null}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={
+                theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+              }
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-app-border text-app-muted hover:bg-app-bg hover:text-app-text"
+            >
+              {theme === "dark" ? (
+                <Sun className="size-3.5" />
+              ) : (
+                <Moon className="size-3.5" />
+              )}
+            </button>
             {!collapsed ? (
               <button
                 type="button"

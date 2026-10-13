@@ -137,8 +137,8 @@ export function FileDetailDrawer({
             </div>
           </SheetHeader>
 
-          <div className="mx-5 flex items-center gap-2 rounded-lg bg-[oklch(0.8_0.13_165_/_0.08)] px-3 py-2.5 text-[13px] text-[oklch(0.42_0.11_165)]">
-            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-[oklch(0.72_0.14_165)]" />
+          <div className="mx-5 flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2.5 text-[13px] text-emerald-700 dark:text-emerald-300">
+            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-emerald-500" />
             Encrypted end-to-end · AES-256-GCM
           </div>
 

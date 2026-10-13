@@ -11,6 +11,7 @@ import {
   setAutolock,
 } from "@/lib/settings";
 import { changeAccountPassword } from "@/lib/auth/password";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import {
   beginTwofaSetup,
   disableTwofa,
@@ -30,6 +31,7 @@ type SessionRow = {
 export default function SettingsPage() {
   const { user, token, logout, updateName } = useAuth();
   const { unlocked, lock } = useVault();
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const [autolock, setAutolockState] = useState<AutolockOption>("15 min");
   const [twofa, setTwofaState] = useState(false);
@@ -255,7 +257,7 @@ export default function SettingsPage() {
                   maxLength={120}
                   placeholder={fullNameFromUser(user, "Your name")}
                   onChange={(e) => setNameDraft(e.target.value)}
-                  className="min-w-0 flex-1 rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm font-medium text-app-text outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
+                  className="min-w-0 flex-1 rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm font-medium text-app-text outline-none focus:border-app-focus focus:ring-2 focus:ring-app-focus/20"
                 />
                 <button
                   type="submit"
@@ -299,7 +301,7 @@ export default function SettingsPage() {
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                  className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-app-surface shadow transition ${
                     twofa ? "translate-x-5" : ""
                   }`}
                 />
@@ -319,7 +321,7 @@ export default function SettingsPage() {
                 <img
                   src={setup.qrDataUrl}
                   alt="2FA QR code"
-                  className="mx-auto h-[180px] w-[180px] rounded-lg bg-white p-2"
+                  className="mx-auto h-[180px] w-[180px] rounded-lg bg-app-surface p-2"
                 />
                 <p className="break-all text-center font-mono text-[11px] text-app-muted">
                   {setup.secret}
@@ -333,7 +335,7 @@ export default function SettingsPage() {
                   value={setupCode}
                   onChange={(e) => setSetupCode(e.target.value)}
                   placeholder="123456"
-                  className="w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                  className="w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -373,7 +375,7 @@ export default function SettingsPage() {
                   value={disableCode}
                   onChange={(e) => setDisableCode(e.target.value)}
                   placeholder="123456 or XXXX-XXXX"
-                  className="w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                  className="w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -418,7 +420,7 @@ export default function SettingsPage() {
                     void navigator.clipboard.writeText(recoveryCodes.join("\n"));
                     say("Recovery codes copied");
                   }}
-                  className="rounded-[10px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-950"
+                  className="rounded-[10px] border border-amber-300 bg-app-surface px-3 py-1.5 text-xs font-semibold text-amber-950"
                 >
                   Copy codes
                 </button>
@@ -431,6 +433,37 @@ export default function SettingsPage() {
                 </button>
               </div>
             ) : null}
+          </div>
+
+          <div className="border-b border-app-border py-4">
+            <p className="text-sm font-medium text-app-text">Appearance</p>
+            <p className="mt-0.5 text-[13px] text-app-muted">
+              Switch between light and dark UI for the app and landing pages.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1 rounded-[10px] border border-app-border p-1">
+              {(
+                [
+                  { id: "light", label: "Light" },
+                  { id: "dark", label: "Dark" },
+                ] as const
+              ).map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    setTheme(opt.id);
+                    say(`${opt.label} mode on`);
+                  }}
+                  className={`rounded-[8px] px-3 py-1.5 text-xs font-medium transition ${
+                    theme === opt.id
+                      ? "bg-app-accent-soft text-app-text"
+                      : "text-app-muted hover:bg-app-bg"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="border-b border-app-border py-4">
@@ -501,7 +534,7 @@ export default function SettingsPage() {
                     autoComplete="current-password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                   />
                 </label>
                 <label className="block">
@@ -515,7 +548,7 @@ export default function SettingsPage() {
                     autoComplete="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                   />
                 </label>
                 <label className="block">
@@ -529,7 +562,7 @@ export default function SettingsPage() {
                     autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                   />
                 </label>
                 {twofa ? (
@@ -545,7 +578,7 @@ export default function SettingsPage() {
                       placeholder="123456"
                       value={passwordCode}
                       onChange={(e) => setPasswordCode(e.target.value)}
-                      className="mt-1 w-full rounded-[10px] border border-app-input-border bg-white px-3 py-2 text-sm outline-none focus:border-app-focus"
+                      className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                     />
                     <span className="mt-1 block text-[12px] text-app-muted-2">
                       Or use a recovery code if you can’t open your app.

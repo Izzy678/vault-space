@@ -189,20 +189,68 @@ body {
   background: color-mix(in srgb, var(--app-accent) 20%, transparent);
 }
 
-[data-theme="dark"] .marketing-page {
+/* App + marketing dark theme (class and data-theme stay in sync). */
+html.dark,
+[data-theme="dark"] {
+  --app-bg: #121417;
+  --app-surface: #1c1f24;
+  --app-sidebar: #16191d;
+  --app-border: #2c3138;
+  --app-input-border: #3a4048;
+  --app-text: #f2f4f6;
+  --app-muted: #9aa3ae;
+  --app-muted-2: #7a8491;
+  --app-subtle: #8b949e;
+  --app-primary: #f2f4f6;
+  --app-primary-hover: #ffffff;
+  --app-accent: #f2f4f6;
+  --app-accent-hover: #ffffff;
+  --app-accent-soft: #2a2f36;
+  --app-focus: #a1a8b3;
+  --app-success: #86efac;
+  --app-danger: #f87171;
+  --app-danger-soft: #3f1d1d;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 35%), 0 1px 3px rgb(0 0 0 / 25%);
+
   --accent: #d3d7dd;
   --accent-hover: #f4f5f6;
-  --nav-bg: #202326;
-  --nav-border: #34383d;
+  --nav-bg: #16191d;
+  --nav-border: #2c3138;
   --nav-text: #fafbfc;
   --nav-muted: #a1a8b3;
-  --nav-btn-border: #525961;
+  --nav-btn-border: #3a4048;
   --nav-cta-bg: #fafbfc;
   --nav-cta-text: #202326;
-  --site-bg: #202326;
+  --site-bg: #121417;
   --site-text: #fafbfc;
   --site-muted: #a1a8b3;
   --site-orbit-color: #c7cdd4;
+
+  --background: var(--app-bg);
+  --foreground: var(--app-text);
+  --card: var(--app-surface);
+  --card-foreground: var(--app-text);
+  --popover: var(--app-surface);
+  --popover-foreground: var(--app-text);
+  --primary: var(--app-primary);
+  --primary-foreground: #121417;
+  --secondary: var(--app-accent-soft);
+  --secondary-foreground: var(--app-text);
+  --muted: #242830;
+  --muted-foreground: var(--app-muted);
+  --accent-foreground: #121417;
+  --destructive: var(--app-danger);
+  --border: var(--app-border);
+  --input: var(--app-input-border);
+  --ring: var(--app-focus);
+  --sidebar: var(--app-sidebar);
+  --sidebar-foreground: var(--app-text);
+  --sidebar-primary: var(--app-primary);
+  --sidebar-primary-foreground: #121417;
+  --sidebar-accent: var(--app-accent-soft);
+  --sidebar-accent-foreground: var(--app-text);
+  --sidebar-border: var(--app-border);
+  --sidebar-ring: var(--app-focus);
 }
 
 @layer base {
@@ -216,38 +264,4 @@ body {
   body {
     @apply bg-background text-foreground font-sans;
   }
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
