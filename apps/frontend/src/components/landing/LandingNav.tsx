@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { LogoMark } from "@/components/app/icons";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
 const links = [
@@ -10,39 +11,6 @@ const links = [
   { label: "Security", href: "#security" },
   { label: "FAQ", href: "#faq" },
 ];
-
-function LogoMark() {
-  return (
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 28 28"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <circle cx="14" cy="14" r="13" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M8 18c2.2-3.2 3.6-4.8 6-4.8s3.8 1.6 6 4.8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M8.5 14.5c2-2.6 3.2-3.8 5.5-3.8s3.5 1.2 5.5 3.8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M9 11c1.7-2 2.8-3 5-3s3.3 1 5 3"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 function SunIcon() {
   return (

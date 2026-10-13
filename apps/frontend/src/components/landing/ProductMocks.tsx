@@ -3,6 +3,8 @@
  * Uses the same app-* tokens as the real product so screenshots feel continuous.
  */
 
+import { LogoMark } from "@/components/app/icons";
+
 const DEMO_FILES = [
   { name: "Q4-board-deck.pdf", type: "PDF", size: "2.4 MB", when: "Today", cat: "documents" },
   { name: "passport-scan.png", type: "PNG", size: "1.1 MB", when: "Yesterday", cat: "images" },
@@ -32,9 +34,7 @@ function SidebarMini({ active = "Dashboard" }: { active?: string }) {
   return (
     <aside className="hidden w-[148px] shrink-0 flex-col border-r border-app-border bg-app-sidebar p-2.5 sm:flex">
       <div className="mb-3 flex items-center gap-1.5 px-1.5">
-        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-app-border text-[8px] font-semibold text-app-text">
-          V
-        </span>
+        <LogoMark className="!h-5 !w-5 [&_svg]:h-2.5 [&_svg]:w-2.5" />
         <span className="text-[11px] font-semibold tracking-tight text-app-text">
           vaultspace
         </span>
