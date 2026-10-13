@@ -20,6 +20,13 @@
   --site-text: var(--app-text);
   --site-muted: var(--app-muted);
   --site-orbit-color: var(--app-muted);
+  /* Marketing landing atmosphere (teal energy on charcoal neutrals). */
+  --marketing-glow: #1a9b8c;
+  --marketing-glow-bright: #148f81;
+  --marketing-glow-soft: color-mix(in srgb, var(--marketing-glow) 16%, transparent);
+  --marketing-surface: color-mix(in srgb, var(--site-text) 4%, var(--site-bg));
+  --marketing-glass: color-mix(in srgb, var(--site-bg) 78%, transparent);
+  --marketing-grid: color-mix(in srgb, var(--site-text) 7%, transparent);
 
   --app-bg: #f4f5f6;
   --app-surface: #ffffff;
@@ -228,6 +235,12 @@ html.dark,
   --site-text: #fafbfc;
   --site-muted: #a1a8b3;
   --site-orbit-color: #c7cdd4;
+  --marketing-glow: #2dd4bf;
+  --marketing-glow-bright: #5eead4;
+  --marketing-glow-soft: color-mix(in srgb, var(--marketing-glow) 22%, transparent);
+  --marketing-surface: color-mix(in srgb, var(--site-text) 5%, var(--site-bg));
+  --marketing-glass: color-mix(in srgb, var(--site-bg) 78%, transparent);
+  --marketing-grid: color-mix(in srgb, var(--site-text) 9%, transparent);
 
   --background: var(--app-bg);
   --foreground: var(--app-text);
@@ -254,26 +267,6 @@ html.dark,
   --sidebar-accent-foreground: var(--app-text);
   --sidebar-border: var(--app-border);
   --sidebar-ring: var(--app-focus);
-}
-
-/* Marketing-only atmosphere (charcoal base + teal energy; does not change app chrome). */
-.marketing-page {
-  --marketing-glow: #1a9b8c;
-  --marketing-glow-bright: #2ec4b6;
-  --marketing-glow-soft: color-mix(in srgb, var(--marketing-glow) 18%, transparent);
-  --marketing-surface: color-mix(in srgb, var(--site-text) 4%, var(--site-bg));
-  --marketing-glass: color-mix(in srgb, var(--site-bg) 72%, transparent);
-  --marketing-grid: color-mix(in srgb, var(--site-text) 7%, transparent);
-}
-
-html.dark .marketing-page,
-[data-theme="dark"] .marketing-page {
-  --marketing-glow: #2dd4bf;
-  --marketing-glow-bright: #5eead4;
-  --marketing-glow-soft: color-mix(in srgb, var(--marketing-glow) 22%, transparent);
-  --marketing-surface: color-mix(in srgb, var(--site-text) 5%, var(--site-bg));
-  --marketing-glass: color-mix(in srgb, var(--site-bg) 78%, transparent);
-  --marketing-grid: color-mix(in srgb, var(--site-text) 9%, transparent);
 }
 
 @layer base {
