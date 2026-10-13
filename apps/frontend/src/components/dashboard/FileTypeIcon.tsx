@@ -11,7 +11,7 @@ const FILE_STYLES: Record<FileKind, { color: string; label: string }> = {
   vector: { color: "#D48C3D", label: "SVG" },
   audio: { color: "#8A66B1", label: "MP3" },
   video: { color: "#E85C68", label: "MP4" },
-  archive: { color: "#CE9641", label: "ZIP" },
+  archive: { color: "#f97316", label: "ZIP" },
   text: { color: "#738091", label: "TXT" },
   other: { color: "#87919D", label: "FILE" },
 };
