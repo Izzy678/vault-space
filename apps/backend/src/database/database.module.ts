@@ -7,6 +7,7 @@ import { FileObject } from '../files/file-object.entity';
 import { FileKeyMaterial } from '../files/file-key-material.entity';
 import { Contact } from '../contacts/contact.entity';
 import { ActivityLog } from '../activity/activity-log.entity';
+import { FileShare } from '../shares/file-share.entity';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ActivityLog } from '../activity/activity-log.entity';
             FileKeyMaterial,
             Contact,
             ActivityLog,
+            FileShare,
           ],
           synchronize: config.get<string>('TYPEORM_SYNCHRONIZE') === 'true',
           ssl: url.includes('sslmode=require')

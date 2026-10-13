@@ -11,14 +11,20 @@ export function RecentFilesTable({
   files,
   onDownload,
   onDelete,
+  onShare,
   title = "Recent files",
   emptyMessage = "No encrypted files yet. Upload to encrypt in your browser and store ciphertext securely.",
+  showShare = true,
+  showDelete = true,
 }: {
   files: FileRow[];
   onDownload: (file: FileRow) => void;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onShare?: (file: FileRow) => void;
   title?: string;
   emptyMessage?: string;
+  showShare?: boolean;
+  showDelete?: boolean;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const headingId = "files-table-heading";
@@ -115,16 +121,30 @@ export function RecentFilesTable({
                         >
                           Download
                         </button>
-                        <button
-                          type="button"
-                          className="block w-full px-3 py-2 text-left text-sm text-app-danger hover:bg-app-danger-soft"
-                          onClick={() => {
-                            setOpenId(null);
-                            onDelete(file.id);
-                          }}
-                        >
-                          Delete
-                        </button>
+                        {showShare && onShare ? (
+                          <button
+                            type="button"
+                            className="block w-full px-3 py-2 text-left text-sm hover:bg-app-bg"
+                            onClick={() => {
+                              setOpenId(null);
+                              onShare(file);
+                            }}
+                          >
+                            Share
+                          </button>
+                        ) : null}
+                        {showDelete && onDelete ? (
+                          <button
+                            type="button"
+                            className="block w-full px-3 py-2 text-left text-sm text-app-danger hover:bg-app-danger-soft"
+                            onClick={() => {
+                              setOpenId(null);
+                              onDelete(file.id);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        ) : null}
                       </div>
                     ) : null}
                   </td>

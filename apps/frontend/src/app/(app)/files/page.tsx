@@ -1,17 +1,23 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeaderActions } from "@/components/app/AppShell";
 import { CategoryCards } from "@/components/dashboard/CategoryCards";
 import { RecentFilesTable } from "@/components/dashboard/RecentFilesTable";
+import { ShareModal } from "@/components/files/ShareModal";
 import { UploadButtons, UploadQueue } from "@/components/files/UploadButtons";
 import { useVaultFiles } from "@/hooks/useVaultFiles";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useVault } from "@/lib/vault/VaultProvider";
 import { CATEGORY_META } from "@/lib/files/categories";
 import { initialsFromUser } from "@/lib/files/format";
-import type { FileCategory } from "@/lib/files/types";
+import type { FileCategory, FileRow } from "@/lib/files/types";
+import {
+  downloadSharedFile,
+  fetchIncomingShares,
+  type IncomingShare,
+} from "@/lib/shares";
 
 const VALID: FileCategory[] = [
   "images",
@@ -39,6 +45,19 @@ function FilesContent() {
     counts,
   } = useVaultFiles(token, unlocked);
   const [filter, setFilter] = useState<FileCategory | "all">("all");
+  const [shareFile, setShareFile] = useState<FileRow | null>(null);
+  const [incoming, setIncoming] = useState<IncomingShare[]>([]);
+  const [shareError, setShareError] = useState<string | null>(null);
+
+  const loadIncoming = useCallback(async () => {
+    if (!token) return;
+    const rows = await fetchIncomingShares(token);
+    setIncoming(rows);
+  }, [token]);
+
+  useEffect(() => {
+    void loadIncoming().catch(() => setIncoming([]));
+  }, [loadIncoming]);
 
   useEffect(() => {
     if (typeParam && VALID.includes(typeParam as FileCategory)) {
@@ -62,7 +81,38 @@ function FilesContent() {
     [filterFiles, search, filter],
   );
 
+  const sharedRows: FileRow[] = useMemo(
+    () =>
+      incoming
+        .filter((s) => {
+          const q = search.trim().toLowerCase();
+          if (!q) return true;
+          return s.originalName.toLowerCase().includes(q);
+        })
+        .map((s) => ({
+          id: s.id,
+          originalName: s.originalName,
+          mimeType: s.mimeType,
+          sizeBytes: s.sizeBytes,
+          uploadedAt: s.uploadedAt,
+          integrityVerified: s.integrityVerified,
+        })),
+    [incoming, search],
+  );
+
   const initials = initialsFromUser(user);
+
+  async function onDownloadShared(row: FileRow) {
+    if (!token || !unlocked) return;
+    const share = incoming.find((s) => s.id === row.id);
+    if (!share) return;
+    setShareError(null);
+    try {
+      await downloadSharedFile(token, unlocked, share);
+    } catch (err) {
+      setShareError(err instanceof Error ? err.message : "Download failed");
+    }
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 lg:py-6">
@@ -73,8 +123,8 @@ function FilesContent() {
             All encrypted files
           </h1>
           <p className="mt-1 max-w-xl text-[13px] text-app-muted">
-            Browse everything in your vault. Filter by type or search from the
-            sidebar.
+            Browse everything in your vault. Share re-wraps the file key to a
+            contact&apos;s public key in your browser.
           </p>
         </div>
         <AppHeaderActions
@@ -85,6 +135,9 @@ function FilesContent() {
 
       <UploadQueue queue={queue} />
       {error ? <p className="mt-4 text-sm text-app-danger">{error}</p> : null}
+      {shareError ? (
+        <p className="mt-4 text-sm text-app-danger">{shareError}</p>
+      ) : null}
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:max-w-3xl">
         <CategoryCards counts={counts} active={filter} onSelect={onSelect} />
@@ -101,8 +154,28 @@ function FilesContent() {
           files={visible}
           onDownload={(f) => void download(f)}
           onDelete={(id) => void remove(id)}
+          onShare={(f) => setShareFile(f)}
         />
       </div>
+
+      <div className="mt-6">
+        <RecentFilesTable
+          title="Shared with me"
+          emptyMessage="Nothing shared with you yet."
+          files={sharedRows}
+          onDownload={(f) => void onDownloadShared(f)}
+          showShare={false}
+          showDelete={false}
+        />
+      </div>
+
+      {shareFile ? (
+        <ShareModal
+          file={shareFile}
+          onClose={() => setShareFile(null)}
+          onShared={() => void loadIncoming()}
+        />
+      ) : null}
     </div>
   );
 }

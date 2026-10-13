@@ -6,6 +6,7 @@ import { AppHeaderActions } from "@/components/app/AppShell";
 import { CategoryCards } from "@/components/dashboard/CategoryCards";
 import { RecentFilesTable } from "@/components/dashboard/RecentFilesTable";
 import { StorageCard } from "@/components/dashboard/StorageCard";
+import { ShareModal } from "@/components/files/ShareModal";
 import { UploadButtons, UploadQueue } from "@/components/files/UploadButtons";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useVault } from "@/lib/vault/VaultProvider";
@@ -15,7 +16,7 @@ import {
   initialsFromUser,
   greetingForNow,
 } from "@/lib/files/format";
-import type { FileCategory } from "@/lib/files/types";
+import type { FileCategory, FileRow } from "@/lib/files/types";
 
 function DashboardContent() {
   const { user, token } = useAuth();
@@ -33,6 +34,7 @@ function DashboardContent() {
     totalBytes,
   } = useVaultFiles(token, unlocked);
   const [filter, setFilter] = useState<FileCategory | "all">("all");
+  const [shareFile, setShareFile] = useState<FileRow | null>(null);
 
   const visible = useMemo(
     () =>
@@ -83,8 +85,13 @@ function DashboardContent() {
           files={visible}
           onDownload={(f) => void download(f)}
           onDelete={(id) => void remove(id)}
+          onShare={(f) => setShareFile(f)}
         />
       </div>
+
+      {shareFile ? (
+        <ShareModal file={shareFile} onClose={() => setShareFile(null)} />
+      ) : null}
     </div>
   );
 }

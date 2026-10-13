@@ -8,6 +8,7 @@ import { StorageModule } from './storage/storage.module';
 import { FilesModule } from './files/files.module';
 import { ActivityModule } from './activity/activity.module';
 import { ContactsModule } from './contacts/contacts.module';
+import { SharesModule } from './shares/shares.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ContactsModule } from './contacts/contacts.module';
     FilesModule,
     ActivityModule,
     ContactsModule,
+    SharesModule,
   ],
 })
 export class AppModule {}

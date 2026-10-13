@@ -50,6 +50,25 @@ export async function encryptFile(
   };
 }
 
+/** Unwrap a file AES key with the owner's private key, re-wrap for a recipient. */
+export async function rewrapAesKeyForRecipient(
+  wrappedAesKeyB64: string,
+  ownerPrivateKey: CryptoKey,
+  recipientPublicKey: CryptoKey,
+): Promise<string> {
+  const rawAes = await crypto.subtle.decrypt(
+    { name: "RSA-OAEP" },
+    ownerPrivateKey,
+    asBufferSource(base64ToBuf(wrappedAesKeyB64)),
+  );
+  const wrapped = await crypto.subtle.encrypt(
+    { name: "RSA-OAEP" },
+    recipientPublicKey,
+    rawAes,
+  );
+  return bufToBase64(wrapped);
+}
+
 export async function decryptFile(
   ciphertext: ArrayBuffer,
   meta: { wrappedAesKey: string; iv: string; authTag: string; mimeType: string },
