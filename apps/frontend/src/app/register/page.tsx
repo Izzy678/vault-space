@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AuthField,
@@ -11,7 +11,12 @@ import {
   authPrimaryBtnClass,
   authLinkClass,
 } from "@/components/auth/AuthShell";
+import { PasswordStrengthPanel } from "@/components/auth/PasswordStrength";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import {
+  evaluatePasswordStrength,
+  STRONG_PASSWORD_HINT,
+} from "@/lib/auth/passwordStrength";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -22,8 +27,21 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const strength = useMemo(
+    () => evaluatePasswordStrength(password),
+    [password],
+  );
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!strength.allMet) {
+      setError(
+        strength.unmetLabels.length
+          ? `Password needs: ${strength.unmetLabels.join(", ").toLowerCase()}.`
+          : STRONG_PASSWORD_HINT,
+      );
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -49,7 +67,7 @@ export default function RegisterPage() {
         </p>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-5">
+      <form onSubmit={(e) => void onSubmit(e)} className="space-y-5">
         <AuthField label="Name">
           <input
             type="text"
@@ -73,21 +91,35 @@ export default function RegisterPage() {
             placeholder="you@example.com"
           />
         </AuthField>
-        <AuthSecretField
-          label="Password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 8 characters"
-        />
+        <div className="space-y-2">
+          <AuthSecretField
+            label="Password"
+            required
+            minLength={8}
+            maxLength={128}
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (error) setError(null);
+            }}
+            placeholder="Create a strong password"
+            aria-describedby="password-requirements"
+          />
+          <div id="password-requirements">
+            <PasswordStrengthPanel password={password} />
+          </div>
+        </div>
         {error ? (
           <p role="alert" className="text-sm text-app-danger">
             {error}
           </p>
         ) : null}
-        <button type="submit" disabled={busy} className={authPrimaryBtnClass}>
+        <button
+          type="submit"
+          disabled={busy || !strength.allMet}
+          className={authPrimaryBtnClass}
+        >
           {busy ? "Creating…" : "Create account"}
         </button>
       </form>

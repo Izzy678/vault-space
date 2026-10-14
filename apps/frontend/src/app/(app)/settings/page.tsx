@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { fullNameFromUser } from "@/lib/files/format";
@@ -11,6 +11,11 @@ import {
   setAutolock,
 } from "@/lib/settings";
 import { changeAccountPassword } from "@/lib/auth/password";
+import {
+  evaluatePasswordStrength,
+  STRONG_PASSWORD_HINT,
+} from "@/lib/auth/passwordStrength";
+import { PasswordStrengthPanel } from "@/components/auth/PasswordStrength";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import {
   beginTwofaSetup,
@@ -53,6 +58,10 @@ export default function SettingsPage() {
   const [passwordCode, setPasswordCode] = useState("");
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const newPasswordStrength = useMemo(
+    () => evaluatePasswordStrength(newPassword),
+    [newPassword],
+  );
 
   useEffect(() => {
     setAutolockState(getAutolock());
@@ -102,8 +111,12 @@ export default function SettingsPage() {
     if (!token) return;
     setPasswordError(null);
 
-    if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters");
+    if (!newPasswordStrength.allMet) {
+      setPasswordError(
+        newPasswordStrength.unmetLabels.length
+          ? `New password needs: ${newPasswordStrength.unmetLabels.join(", ").toLowerCase()}.`
+          : STRONG_PASSWORD_HINT,
+      );
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -537,19 +550,29 @@ export default function SettingsPage() {
                     className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
                   />
                 </label>
-                <label className="block">
-                  <span className="text-[12px] font-medium text-app-muted">
-                    New password
-                  </span>
-                  <SecretInput
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
-                  />
-                </label>
+                <div className="space-y-2">
+                  <label className="block">
+                    <span className="text-[12px] font-medium text-app-muted">
+                      New password
+                    </span>
+                    <SecretInput
+                      required
+                      minLength={8}
+                      maxLength={128}
+                      autoComplete="new-password"
+                      value={newPassword}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        if (passwordError) setPasswordError(null);
+                      }}
+                      className="mt-1 w-full rounded-[10px] border border-app-input-border bg-app-surface px-3 py-2 text-sm outline-none focus:border-app-focus"
+                      aria-describedby="settings-password-requirements"
+                    />
+                  </label>
+                  <div id="settings-password-requirements">
+                    <PasswordStrengthPanel password={newPassword} />
+                  </div>
+                </div>
                 <label className="block">
                   <span className="text-[12px] font-medium text-app-muted">
                     Confirm new password
@@ -557,6 +580,7 @@ export default function SettingsPage() {
                   <SecretInput
                     required
                     minLength={8}
+                    maxLength={128}
                     autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -588,7 +612,7 @@ export default function SettingsPage() {
                 ) : null}
                 <button
                   type="submit"
-                  disabled={passwordBusy}
+                  disabled={passwordBusy || !newPasswordStrength.allMet}
                   className="rounded-[10px] bg-app-primary px-4 py-2 text-sm font-semibold text-app-primary-fg hover:bg-app-primary-hover disabled:opacity-60"
                 >
                   {passwordBusy ? "Updating…" : "Update password"}
