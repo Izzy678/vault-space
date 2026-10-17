@@ -49,7 +49,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   const [unlocked, setUnlocked] = useState<UnlockedVault | null>(null);
   const [hasPackage, setHasPackage] = useState<boolean | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
-  const lastActive = useRef(Date.now());
+  // Activity starts when keys are unlocked or restored, not during prerendering.
+  const lastActive = useRef(0);
   const unlockedRef = useRef(unlocked);
   unlockedRef.current = unlocked;
 

@@ -34,7 +34,7 @@ export function PasswordStrengthPanel({ password }: { password: string }) {
 
   return (
     <div className="space-y-2.5" aria-live="polite">
-      {showMeter && bar ? (
+      {showMeter && strength.level !== "empty" && bar ? (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11px] text-app-muted-2">Strength</span>
