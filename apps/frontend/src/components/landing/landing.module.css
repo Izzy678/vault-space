@@ -86,23 +86,10 @@
 .heroActions { display: flex; align-items: center; justify-content: center; gap: var(--space-4); }
 .heroNote { font-size: 14px; line-height: 20px; color: var(--landing-muted); }
 
-.previewFigure { width: min(var(--landing-width), 100%); }
-.workspace { overflow: hidden; border-radius: var(--landing-large-radius); background: var(--landing-surface); text-align: left; }
-.workspaceToolbar { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); background: var(--landing-raised); }
-.previewSearch { margin-left: auto; color: var(--landing-muted); font-size: 14px; }
-.workspaceBody { display: grid; grid-template-columns: 176px minmax(0, 1fr) 300px; }
-.workspaceSidebar { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-6); font-size: 14px; line-height: 20px; color: var(--landing-muted); }
-.workspaceSidebar span:first-child { color: var(--landing-text); }
-.fileList { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); min-width: 0; align-self: start; }
-.fileRow { display: flex; align-items: center; gap: var(--space-4); width: 100%; min-height: 80px; padding: var(--space-4); border: 0; border-radius: var(--landing-button-radius); background: var(--landing-surface); color: var(--landing-text); text-align: left; font: inherit; cursor: pointer; transition: background 180ms; }
-.fileRow:hover { background: var(--landing-raised); }
-.fileIcon { flex-shrink: 0; color: var(--landing-muted); }
-.fileIcon svg { width: 24px; height: 24px; }
-.fileCopy { display: flex; flex: 1; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.fileCopy > span:first-child { overflow-wrap: anywhere; }
-.fileMeta, .fileStatus { color: var(--landing-muted); font-size: 14px; line-height: 20px; }
-.fileStatus { flex-shrink: 0; }
-.previewInspector { min-width: 0; }
+/* A real desktop capture, framed without changing the application layout. */
+.previewFigure { width: min(1280px, 100%); }
+.productCapture { display: block; overflow: hidden; border: 1px solid rgb(255 255 255 / 10%); border-radius: var(--landing-panel-radius); background: var(--landing-surface); box-shadow: 0 24px 80px rgb(0 0 0 / 24%); }
+.productCaptureImage { display: block; width: 100%; height: auto; }
 .fileSecurity { display: flex; flex-direction: column; gap: var(--space-6); height: 100%; min-width: 0; padding: var(--space-6); border-radius: var(--landing-panel-radius); background: var(--landing-raised); }
 .icon { display: inline-flex; flex-shrink: 0; color: var(--landing-muted); }
 .icon svg { width: 32px; height: 32px; }
@@ -112,7 +99,6 @@
 .securityList { display: flex; flex-direction: column; gap: var(--space-6); }
 .securityList dt { margin-bottom: var(--space-2); color: var(--landing-muted); font-size: 14px; line-height: 20px; }
 .securityList dd { overflow-wrap: anywhere; }
-.mobileSecurity { display: none; }
 .previewFigure figcaption { margin-top: var(--space-8); color: var(--landing-muted); text-align: center; font-size: 14px; line-height: 20px; }
 
 .capabilities { padding: var(--space-16) 0; }
@@ -179,9 +165,6 @@
 @keyframes previewEnter { from { opacity: 0; transform: translateY(20px) scale(0.985); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 1100px) {
-  .workspaceBody { grid-template-columns: 150px minmax(0, 1fr) 270px; }
-  .workspaceSidebar { padding: var(--space-6) var(--space-4); }
-  .fileStatus { display: none; }
   .featureLayout { gap: var(--space-12); }
   .featurePanel { padding: var(--space-6); }
   .capabilityGrid { gap: var(--space-8); }
@@ -196,8 +179,6 @@
   .mobileMenu > a:hover { background: var(--landing-raised); }
   .mobileMenu > div { display: flex; gap: var(--space-4); padding-top: var(--space-4); }
   .hero h1 { font-size: 48px; line-height: 56px; }
-  .workspaceBody { grid-template-columns: minmax(0, 1fr) 270px; }
-  .workspaceSidebar { display: none; }
   .featureLayout { grid-template-columns: 1fr; gap: var(--space-12); }
   .featureNotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-8); }
   .featurePanel { max-width: 620px; width: 100%; margin-inline: auto; }
@@ -214,15 +195,6 @@
   .heroActions { flex-direction: column; gap: var(--space-6); }
   .heroNote { max-width: 285px; }
   .desktopBreak { display: none; }
-  .workspaceToolbar > span:first-child { margin-right: auto; }
-  .previewSearch { display: none; }
-  .workspaceBody { display: block; }
-  .previewInspector { display: none; }
-  .fileList { padding: var(--space-4); }
-  .fileRow[aria-pressed="true"] { background: var(--landing-raised); }
-  .fileCopy { font-size: 14px; }
-  .fileRow { gap: var(--space-3); padding: var(--space-3); }
-  .mobileSecurity { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); background: var(--landing-raised); }
   .previewFigure figcaption { margin-top: var(--space-6); }
   .capabilities { padding: var(--space-16) 0 var(--space-6); }
   .capabilityGrid, .featureNotes, .securityMethods, .passphrase { grid-template-columns: 1fr; }
