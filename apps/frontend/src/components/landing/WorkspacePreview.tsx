@@ -3,7 +3,7 @@ import styles from "./landing.module.css";
 
 export function WorkspacePreview() {
   return (
-    <figure className={styles.previewFigure} data-reveal>
+    <figure className={styles.previewFigure}>
       <a
         className={styles.productCapture}
         href="/images/product/vaultspace-desktop.jpg"
@@ -18,6 +18,7 @@ export function WorkspacePreview() {
           height={560}
           className={styles.productCaptureImage}
           loading="eager"
+          draggable={false}
           unoptimized
         />
       </a>

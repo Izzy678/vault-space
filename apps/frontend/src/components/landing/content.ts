@@ -1,10 +1,3 @@
-export const sampleFiles = [
-  { name: "Research-notes.pdf", type: "PDF", size: "2.4 MB" },
-  { name: "Project-report.docx", type: "DOCX", size: "1.8 MB" },
-  { name: "Experiment-data.csv", type: "CSV", size: "846 KB" },
-  { name: "Presentation.pdf", type: "PDF", size: "5.2 MB" },
-] as const;
-
 export const capabilities = [
   ["Encrypted in your browser", "File content is encrypted before upload."],
   ["A protected key for every file", "Each AES key receives separate RSA protection."],

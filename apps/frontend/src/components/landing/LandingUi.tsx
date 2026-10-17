@@ -39,19 +39,3 @@ export function LandingIcon({ name }: { name: keyof typeof icons }) {
   const Icon = icons[name];
   return <span className={styles.icon} aria-hidden="true"><Icon /></span>;
 }
-
-export function FileSecurityDetails({ fileName = "Research-notes.pdf" }: { fileName?: string }) {
-  return (
-    <div className={styles.fileSecurity} data-ui="file-security">
-      <LandingIcon name="lock" />
-      <p className={styles.inspectorFile}>{fileName}</p>
-      <p className={styles.smallMuted}>File security</p>
-      <dl className={styles.securityList}>
-        <div><dt>File content</dt><dd>AES-256-GCM encrypted</dd></div>
-        <div><dt>File key</dt><dd>RSA-OAEP protected</dd></div>
-        <div><dt>Retrieval</dt><dd>Authentication + integrity checks</dd></div>
-      </dl>
-      <p className={styles.smallMuted}>Illustrative security details</p>
-    </div>
-  );
-}

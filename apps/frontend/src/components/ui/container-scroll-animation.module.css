@@ -1,0 +1,13 @@
+.container { position: relative; display: flex; flex-direction: column; align-items: center; gap: 32px; width: 100%; max-width: 1280px; margin-inline: auto; }
+.header { position: relative; z-index: 1; width: 100%; }
+.perspective { width: calc(100% - 80px); perspective: 1200px; }
+.card { width: 100%; transform-origin: center center; }
+
+@media (max-width: 768px) {
+  .container { gap: 24px; }
+  .perspective { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header, .card { transform: none !important; }
+}

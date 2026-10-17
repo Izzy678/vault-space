@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { FolderOpen, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { capabilities, faqs, features, uploadSteps } from "./content";
-import { FileSecurityDetails, LandingBrand, LandingButton, LandingIcon } from "./LandingUi";
+import { LandingBrand, LandingButton, LandingIcon } from "./LandingUi";
 import { WorkspacePreview } from "./WorkspacePreview";
 import styles from "./landing.module.css";
+
+const featureIcons = [FolderOpen, KeyRound, LockKeyhole, ShieldCheck];
 
 async function CopyrightYear() {
   "use cache";
@@ -14,7 +18,7 @@ export function LandingContent() {
     <>
       <main id="main-content">
         <section className={styles.hero} aria-labelledby="hero-title">
-          <div className={styles.heroCopy}>
+          <ContainerScroll titleComponent={<div className={styles.heroCopy}>
             <h1 id="hero-title">Your files.<br />Protected at every step.</h1>
             <p className={styles.heroDescription}>Secure cloud storage with browser-side file encryption,<br className={styles.desktopBreak} /> separate key protection, and verified retrieval.</p>
             <div className={styles.heroActions}>
@@ -22,8 +26,9 @@ export function LandingContent() {
               <LandingButton href="#how-it-works" secondary>See how it works</LandingButton>
             </div>
             <p className={styles.heroNote}>AES-256-GCM file encryption · RSA-OAEP key protection</p>
-          </div>
-          <WorkspacePreview />
+          </div>}>
+            <WorkspacePreview />
+          </ContainerScroll>
         </section>
 
         <section className={styles.capabilities} aria-label="Core file protection">
@@ -38,16 +43,20 @@ export function LandingContent() {
               <h2 id="features-title">Familiar storage.<br />Visible protection.</h2>
               <p>Manage the files you need through a straightforward workspace, with protection built into upload and retrieval.</p>
             </div>
-            <div className={styles.featureLayout}>
-              <div className={styles.featureNotes}>
-                {features.map(([title, body]) => <div key={title} data-reveal><h3>{title}</h3><p>{body}</p></div>)}
-              </div>
-              <div className={styles.featurePanel} data-ui="file-inspector" data-reveal>
-                <div className={styles.featureFile}><LandingIcon name="folder" /><h3>Research-notes.pdf</h3></div>
-                <p>A single file. Two forms of protection.</p>
-                <FileSecurityDetails />
-                <p>File content and its encryption key follow separate protection steps.</p>
-              </div>
+            <div className={styles.featureGrid}>
+              {features.map(([title, body], index) => {
+                const Icon = featureIcons[index];
+                return (
+                  <article key={title} className={styles.featureItem} data-reveal>
+                    <div className={styles.featureTop} aria-hidden="true">
+                      <Icon size={28} strokeWidth={1.5} />
+                      <span>0{index + 1}</span>
+                    </div>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
