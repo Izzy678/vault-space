@@ -7,9 +7,11 @@ import {
   AuthField,
   AuthSecretField,
   AuthShell,
+  AuthNotice,
   authInputClass,
   authPrimaryBtnClass,
   authLinkClass,
+  authPasswordRulesClass,
 } from "@/components/auth/AuthShell";
 import { PasswordStrengthPanel } from "@/components/auth/PasswordStrength";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -56,6 +58,7 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
+      stage="register"
       title="Create an account"
       subtitle="A private space for your files."
       footer={
@@ -67,7 +70,7 @@ export default function RegisterPage() {
         </p>
       }
     >
-      <form onSubmit={(e) => void onSubmit(e)} className="space-y-5">
+      <form onSubmit={(e) => void onSubmit(e)} className="space-y-5" aria-label="Create an account" aria-busy={busy}>
         <AuthField label="Name">
           <input
             type="text"
@@ -85,6 +88,8 @@ export default function RegisterPage() {
             type="email"
             required
             autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={authInputClass}
@@ -106,7 +111,7 @@ export default function RegisterPage() {
             placeholder="Create a strong password"
             aria-describedby="password-requirements"
           />
-          <div id="password-requirements">
+          <div id="password-requirements" className={authPasswordRulesClass}>
             <PasswordStrengthPanel password={password} />
           </div>
         </div>
@@ -122,6 +127,7 @@ export default function RegisterPage() {
         >
           {busy ? "Creating…" : "Create account"}
         </button>
+        <AuthNotice>Next, you’ll set a separate passphrase for your vault.</AuthNotice>
       </form>
     </AuthShell>
   );

@@ -7,6 +7,7 @@ import {
   AuthField,
   AuthSecretField,
   AuthShell,
+  AuthNotice,
   authInputClass,
   authPrimaryBtnClass,
   authLinkClass,
@@ -62,6 +63,7 @@ export default function LoginPage() {
   if (preAuthToken) {
     return (
       <AuthShell
+        stage="verify"
         title="Authenticator code"
         subtitle={`Enter the 6-digit code from your app for ${email}, or a recovery code.`}
         footer={
@@ -78,12 +80,16 @@ export default function LoginPage() {
           </button>
         }
       >
-        <form onSubmit={(e) => void onTotpSubmit(e)} className="space-y-5">
+        <form onSubmit={(e) => void onTotpSubmit(e)} className="space-y-5" aria-label="Verify sign-in" aria-busy={busy}>
           <AuthField label="Code">
             <input
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
+              autoCapitalize="none"
+              spellCheck={false}
+              aria-describedby={error ? "verify-error" : undefined}
+              aria-invalid={Boolean(error)}
               required
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
@@ -93,7 +99,7 @@ export default function LoginPage() {
             />
           </AuthField>
           {error ? (
-            <p role="alert" className="text-sm text-app-danger">
+            <p id="verify-error" role="alert" className="text-sm text-app-danger">
               {error}
             </p>
           ) : null}
@@ -108,22 +114,24 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Sign in"
-      subtitle="Welcome back to vaultspace."
+      subtitle="Welcome back. Your private workspace awaits."
       footer={
         <p>
-          New to vaultspace?{" "}
+          New to VaultSpace?{" "}
           <Link href="/register" className={authLinkClass}>
             Create an account
           </Link>
         </p>
       }
     >
-      <form onSubmit={(e) => void onPasswordSubmit(e)} className="space-y-5">
+      <form onSubmit={(e) => void onPasswordSubmit(e)} className="space-y-5" aria-label="Sign in" aria-busy={busy}>
         <AuthField label="Email">
           <input
             type="email"
             required
             autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={authInputClass}
@@ -137,7 +145,7 @@ export default function LoginPage() {
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 8 characters"
+          placeholder="Your password"
         />
         {error ? (
           <p role="alert" className="text-sm text-app-danger">
@@ -147,6 +155,7 @@ export default function LoginPage() {
         <button type="submit" disabled={busy} className={authPrimaryBtnClass}>
           {busy ? "Signing in…" : "Sign in"}
         </button>
+        <AuthNotice>You’ll unlock your vault after signing in.</AuthNotice>
       </form>
     </AuthShell>
   );

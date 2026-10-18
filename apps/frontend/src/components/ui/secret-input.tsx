@@ -25,7 +25,6 @@ export function SecretInput({
       />
       <button
         type="button"
-        tabIndex={-1}
         onClick={() => setVisible((v) => !v)}
         className="absolute right-1.5 top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-app-muted outline-none transition hover:bg-app-bg/60 hover:text-app-text focus-visible:ring-2 focus-visible:ring-app-focus"
         aria-label={visible ? `Hide ${secretLabel}` : `Show ${secretLabel}`}

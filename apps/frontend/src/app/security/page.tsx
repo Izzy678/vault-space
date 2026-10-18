@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   AuthSecretField,
   AuthShell,
+  AuthNotice,
+  AuthLoading,
+  authLinkClass,
   authPrimaryBtnClass,
 } from "@/components/auth/AuthShell";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -26,7 +29,7 @@ export default function SecurityPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [mode, setMode] = useState<"setup" | "unlock">("setup");
+  const mode = hasPackage ? "unlock" : "setup";
 
   useEffect(() => {
     if (!ready) return;
@@ -40,11 +43,6 @@ export default function SecurityPage() {
         setError(err instanceof Error ? err.message : "Failed to load vault"),
       );
   }, [ready, token, router, refreshStatus]);
-
-  useEffect(() => {
-    if (hasPackage === true) setMode("unlock");
-    if (hasPackage === false) setMode("setup");
-  }, [hasPackage]);
 
   useEffect(() => {
     // Already unlocked (or restored from this tab’s session) → leave unlock gate
@@ -80,20 +78,17 @@ export default function SecurityPage() {
   }
 
   if (!ready || !token || !sessionReady) {
-    return (
-      <div className="app-root flex min-h-[100dvh] items-center justify-center bg-app-bg text-app-muted">
-        Loading…
-      </div>
-    );
+    return <AuthLoading />;
   }
 
   return (
     <AuthShell
+      stage={mode}
       title={mode === "setup" ? "Create your vault" : "Unlock vault"}
       subtitle={
         mode === "setup"
-          ? "Your vault passphrase wraps the RSA private key in the browser. It is never sent to the API. If you lose it, encrypted files cannot be recovered — by design."
-          : "Enter your vault passphrase to unwrap your private key in this browser session."
+          ? "Give your vault its own passphrase, separate from your login password."
+          : "One more step. Enter your vault passphrase to access your encrypted files."
       }
       footer={
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -104,7 +99,7 @@ export default function SecurityPage() {
               logout();
               router.push("/login");
             }}
-            className="font-medium text-app-muted hover:text-app-text"
+            className={authLinkClass}
           >
             Sign out
           </button>
@@ -116,7 +111,7 @@ export default function SecurityPage() {
         </div>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-5" aria-label={mode === "setup" ? "Create your vault" : "Unlock vault"} aria-busy={busy}>
         <AuthSecretField
           label="Vault passphrase"
           secretLabel="passphrase"
@@ -139,7 +134,7 @@ export default function SecurityPage() {
             placeholder="Repeat passphrase"
           />
         ) : null}
-        {error ? <p className="text-sm text-app-danger">{error}</p> : null}
+        {error ? <p role="alert" className="text-sm text-app-danger">{error}</p> : null}
         <button
           type="submit"
           disabled={busy || hasPackage === null}
@@ -149,8 +144,9 @@ export default function SecurityPage() {
             ? "Working…"
             : mode === "setup"
               ? "Create vault"
-              : "Unlock"}
+              : "Unlock vault"}
         </button>
+        <AuthNotice>{mode === "setup" ? "Keep this passphrase safe. It never leaves your browser, and losing it can make your encrypted files unrecoverable." : "Your passphrase unlocks your private key in this browser. It is never sent to the server."}</AuthNotice>
       </form>
     </AuthShell>
   );

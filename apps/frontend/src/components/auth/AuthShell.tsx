@@ -1,139 +1,87 @@
 "use client";
 
 import Link from "next/link";
-import { useId, type ComponentProps } from "react";
+import { useId, type ComponentProps, type ReactNode } from "react";
+import { ArrowLeft, KeyRound, LockKeyhole, ShieldCheck, UserPlus } from "lucide-react";
 import { LogoMark } from "@/components/app/icons";
+import { brandFont } from "@/components/brand/font";
 import { SecretInput } from "@/components/ui/secret-input";
+import styles from "./auth.module.css";
 
-function AuthBrand({ className = "" }: { className?: string }) {
-  return (
-    <Link
-      href="/"
-      className={`inline-flex w-fit items-center gap-2.5 rounded-sm text-app-text outline-none focus-visible:ring-2 focus-visible:ring-app-focus focus-visible:ring-offset-4 ${className}`}
-    >
-      <LogoMark />
-      <span className="text-[17px] font-semibold tracking-tight">VaultSpace</span>
-    </Link>
-  );
-}
+type AuthStage = "login" | "register" | "verify" | "setup" | "unlock";
+const stageIcons = { login: LockKeyhole, register: UserPlus, verify: ShieldCheck, setup: KeyRound, unlock: KeyRound };
+const protections = [
+  { icon: LockKeyhole, label: "Encrypt the file" },
+  { icon: KeyRound, label: "Protect the key" },
+  { icon: ShieldCheck, label: "Verify on retrieval" },
+];
 
-export function AuthShell({
-  title,
-  subtitle,
-  children,
-  footer,
-}: {
+export function AuthShell({ title, subtitle, children, footer, stage = "login" }: {
   title: string;
   subtitle?: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  stage?: AuthStage;
 }) {
+  const Icon = stageIcons[stage];
   return (
-    <div className="app-root flex min-h-[100dvh] bg-app-bg text-app-text">
-      <aside className="hidden min-h-[100dvh] w-1/2 flex-col border-r border-app-border bg-app-sidebar px-8 py-10 lg:flex xl:px-12 2xl:px-16">
-        <AuthBrand />
-
-        <div className="flex flex-1 items-center py-12">
-          <div className="w-full max-w-[560px]">
-            <h2 className="text-[32px] font-semibold leading-[1.2] tracking-[-0.035em] xl:text-[36px] 2xl:text-[44px]">
-              <span className="block">Your files are encrypted</span>
-              <span className="block">before they leave</span>
-              <span className="block">your browser.</span>
-            </h2>
-
-            <figure className="mt-8" aria-label="How your files are protected">
-              <div className="space-y-2.5 text-xs xl:text-[13px]">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <code className="rounded-md border border-app-input-border px-2.5 py-1.5">file</code>
-                  <span aria-hidden className="text-[#9CA3AF]">→</span>
-                  <code className="rounded-md bg-app-accent-soft px-2.5 py-1.5 text-app-accent">AES-256-GCM</code>
-                  <span aria-hidden className="text-[#9CA3AF]">→</span>
-                  <code className="rounded-md border border-app-input-border px-2.5 py-1.5">ciphertext</code>
-                </div>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <code className="rounded-md border border-app-input-border px-2.5 py-1.5">file key</code>
-                  <span aria-hidden className="text-[#9CA3AF]">→</span>
-                  <code className="rounded-md bg-app-accent-soft px-2.5 py-1.5 text-app-accent">RSA-2048 public key</code>
-                  <span aria-hidden className="text-[#9CA3AF]">→</span>
-                  <code className="rounded-md border border-app-input-border px-2.5 py-1.5">wrapped key</code>
-                </div>
-              </div>
-              <figcaption className="mt-7 max-w-[520px] text-sm leading-6 text-app-muted 2xl:text-base 2xl:leading-7">
-                Each file gets its own AES key. That key is locked with your RSA
-                public key, and only your private key can unlock it. Our servers
-                store ciphertext and wrapped keys, never the plaintext.
-              </figcaption>
-            </figure>
+    <div className={`${brandFont.variable} ${styles.root}`} data-stage={stage}>
+      <a href="#auth-main" className={styles.skipLink}>Skip to form</a>
+      <header className={styles.header}>
+        <Link href="/" className={styles.brand} aria-label="VaultSpace home"><LogoMark className={styles.logo} /><span>VaultSpace</span></Link>
+        <Link href="/" className={styles.backLink}><ArrowLeft size={15} aria-hidden="true" />Back to home</Link>
+      </header>
+      <div className={styles.content}>
+        <aside className={styles.intro} aria-label="Your files, protected">
+          <p className={styles.eyebrow}><span />A little space. A lot of protection.</p>
+          <h2>Your files.<br /><span>In safe hands.</span></h2>
+          <p className={styles.description}>A private space for the things that matter. With protection built in, from your browser to the cloud.</p>
+          <div className={styles.protections}>
+            {protections.map(({ icon: ProtectionIcon, label }) => <div key={label}><span className={styles.protectionIcon}><ProtectionIcon size={22} strokeWidth={1.5} aria-hidden="true" /></span><p>{label}</p></div>)}
           </div>
-        </div>
-
-        <p className="text-xs leading-5 text-app-subtle 2xl:text-sm">
-          Zero-knowledge storage · Hybrid AES + RSA encryption
-        </p>
-      </aside>
-
-      <main className="flex min-h-[100dvh] w-full flex-col px-6 py-8 sm:px-10 lg:w-1/2 lg:py-12">
-        <AuthBrand className="mb-10 shrink-0 lg:hidden" />
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-[380px] 2xl:max-w-[420px]">
-            <h1 className="text-2xl font-medium tracking-tight">{title}</h1>
-            {subtitle ? (
-              <p className="mt-2 text-sm leading-6 text-app-muted">{subtitle}</p>
-            ) : null}
-            <div className="mt-6">{children}</div>
-            {footer ? <div className="mt-6 text-sm leading-6 text-app-muted">{footer}</div> : null}
+          <p className={styles.encryptionNote}>AES-256-GCM file encryption <span>·</span> RSA-OAEP key protection</p>
+        </aside>
+        <main id="auth-main" className={styles.main}>
+          <div className={styles.formPanel}>
+            <span className={styles.formIcon} data-stage={stage}><Icon size={24} strokeWidth={1.5} aria-hidden="true" /></span>
+            <h1>{title}</h1>
+            {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+            <div className={styles.formContent}>{children}</div>
+            {footer ? <div className={styles.footer}>{footer}</div> : null}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+      <footer className={styles.pageFooter}><p><ShieldCheck size={14} aria-hidden="true" />Encryption starts on your device.</p><span>VaultSpace · Academic prototype</span></footer>
     </div>
   );
 }
 
-export function AuthField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block text-sm text-app-muted">
-      <span>{label}</span>
-      <div className="mt-1.5">{children}</div>
-    </label>
-  );
+export function AuthField({ label, children }: { label: string; children: ReactNode }) {
+  return <label className={styles.field}><span>{label}</span><div className={styles.fieldInput}>{children}</div></label>;
 }
 
-export function AuthSecretField({
-  label,
-  secretLabel,
-  ...props
-}: {
+export function AuthSecretField({ label, secretLabel, ...props }: {
   label: string;
   secretLabel?: string;
 } & Omit<ComponentProps<"input">, "type" | "className">) {
   const id = useId();
-
   return (
-    <div className="block text-sm text-app-muted">
+    <div className={styles.field}>
       <label htmlFor={id}>{label}</label>
-      <div className="mt-1.5">
-        <SecretInput
-          id={id}
-          secretLabel={secretLabel ?? label.toLowerCase()}
-          className={authInputClass}
-          {...props}
-        />
-      </div>
+      <div className={styles.fieldInput}><SecretInput id={id} secretLabel={secretLabel ?? label.toLowerCase()} className={`${styles.input} ${styles.secretInput}`} {...props} /></div>
     </div>
   );
 }
 
-export const authInputClass =
-  "h-11 w-full rounded-[9px] border border-app-input-border bg-app-surface px-3.5 text-sm text-app-text shadow-[0_1px_2px_rgb(16_24_40/2%)] outline-none transition placeholder:text-app-muted-2 focus:border-app-focus focus:ring-2 focus:ring-app-focus/15";
+export function AuthNotice({ children }: { children: ReactNode }) {
+  return <p className={styles.notice}><ShieldCheck size={16} aria-hidden="true" /><span>{children}</span></p>;
+}
 
-export const authPrimaryBtnClass =
-  "inline-flex h-11 w-full items-center justify-center rounded-[9px] bg-app-primary px-4 text-sm font-semibold text-app-primary-fg outline-none transition hover:bg-app-primary-hover focus-visible:ring-2 focus-visible:ring-app-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg disabled:cursor-not-allowed disabled:opacity-60";
+export function AuthLoading() {
+  return <AuthShell title="Preparing your vault" stage="unlock"><p className={styles.loading} role="status">Loading your secure workspace…</p></AuthShell>;
+}
 
-export const authLinkClass =
-  "rounded-sm font-medium text-app-accent outline-none transition hover:text-app-accent-hover hover:underline focus-visible:ring-2 focus-visible:ring-app-focus focus-visible:ring-offset-2";
+export const authInputClass = styles.input;
+export const authPrimaryBtnClass = styles.primaryButton;
+export const authLinkClass = styles.link;
+export const authPasswordRulesClass = styles.passwordRequirements;

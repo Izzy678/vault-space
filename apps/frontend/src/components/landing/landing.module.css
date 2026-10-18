@@ -1,33 +1,6 @@
 /* Figma foundations with Filen-inspired lighting and accent colors, scoped to marketing. */
 .page {
-  --landing-bg: #08090a;
-  --landing-surface: #111213;
-  --landing-raised: #191a1b;
-  --landing-text: #ffffff;
-  --landing-muted: #a3a3a3;
-  --landing-subtle: #858585;
-  --landing-action: #ffffff;
-  --landing-on-action: #08090a;
-  --landing-button-radius: 6px;
-  --landing-panel-radius: 12px;
-  --landing-large-radius: 16px;
-  --landing-width: 1160px;
-  --landing-blue: #5684ed;
-  --landing-purple: #ae82d8;
-  --landing-green: #63bc8a;
-  --landing-accent-gradient: linear-gradient(100deg, var(--landing-blue) 4%, var(--landing-purple) 52%, var(--landing-green) 98%);
-  --landing-hairline: rgb(255 255 255 / 9%);
-  --landing-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-20: 80px;
+  composes: theme from "../brand/brand.module.css";
   color-scheme: dark;
   position: relative;
   display: flow-root;
