@@ -18,7 +18,7 @@ export function LandingContent() {
     <>
       <main id="main-content">
         <section className={styles.hero} aria-labelledby="hero-title">
-          <ContainerScroll titleComponent={<div className={styles.heroCopy}>
+          <ContainerScroll caption="The VaultSpace web app. Select the preview to view it at full size." titleComponent={<div className={styles.heroCopy}>
             <h1 id="hero-title">Your files.<br />Protected at every step.</h1>
             <p className={styles.heroDescription}>Secure cloud storage with browser-side file encryption,<br className={styles.desktopBreak} /> separate key protection, and verified retrieval.</p>
             <div className={styles.heroActions}>

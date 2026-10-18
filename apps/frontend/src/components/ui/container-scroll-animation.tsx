@@ -2,7 +2,7 @@
 
 import { useRef, useSyncExternalStore, type ReactNode } from "react";
 import {
-  motion, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue,
+  motion, useReducedMotion, useScroll, useTransform, type MotionValue,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import styles from "./container-scroll-animation.module.css";
@@ -16,33 +16,37 @@ function subscribeToViewport(callback: () => void) {
 const getMobileSnapshot = () => window.matchMedia(mobileQuery).matches;
 const getServerSnapshot = () => false;
 
-export function ContainerScroll({ titleComponent, children, className }: {
+export function ContainerScroll({ titleComponent, children, caption, className }: {
   titleComponent: ReactNode;
   children: ReactNode;
+  caption?: ReactNode;
   className?: string;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const isMobile = useSyncExternalStore(subscribeToViewport, getMobileSnapshot, getServerSnapshot);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    // Complete the tilt while the product is still comfortably in view.
-    offset: ["start start", "end center"],
+    target: cardRef,
+    // The card is upright when its bottom reaches the viewport's bottom.
+    offset: ["start end", "end end"],
   });
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
-  const rotate = useTransform(progress, [0, 1], isMobile ? [8, 0] : [20, 0]);
-  const scale = useTransform(progress, [0, 1], isMobile ? [0.98, 1] : [1.04, 1]);
-  const translate = useTransform(progress, [0, 1], isMobile ? [8, -12] : [20, -36]);
-  const titleTranslate = useTransform(progress, [0, 1], [0, -28]);
+  // Follow scrolling directly so a spring cannot leave a visible card tilted.
+  const rotate = useTransform(scrollYProgress, [0, 1], isMobile ? [8, 0] : [20, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], isMobile ? [0.98, 1] : [0.96, 1]);
+  const translate = useTransform(scrollYProgress, [0, 1], isMobile ? [8, 0] : [20, 0]);
+  const titleTranslate = useTransform(scrollYProgress, [0, 1], [0, -28]);
 
   return (
-    <div ref={containerRef} className={cn(styles.container, className)} data-ui="container-scroll">
+    <div className={cn(styles.container, className)} data-ui="container-scroll">
       <Header translate={titleTranslate} reduceMotion={!!reduceMotion} titleComponent={titleComponent} />
-      <div className={styles.perspective}>
-        <Card rotate={rotate} scale={scale} translate={translate} reduceMotion={!!reduceMotion}>
-          {children}
-        </Card>
-      </div>
+      <figure className={styles.figure}>
+        <div ref={cardRef} className={styles.perspective}>
+          <Card rotate={rotate} scale={scale} translate={translate} reduceMotion={!!reduceMotion}>
+            {children}
+          </Card>
+        </div>
+        {caption ? <figcaption className={styles.caption}>{caption}</figcaption> : null}
+      </figure>
     </div>
   );
 }

@@ -1,11 +1,13 @@
-.container { position: relative; display: flex; flex-direction: column; align-items: center; gap: 32px; width: 100%; max-width: 1280px; margin-inline: auto; }
+.container { position: relative; display: flex; flex-direction: column; align-items: center; gap: 32px; width: 100%; max-width: 1440px; margin-inline: auto; }
 .header { position: relative; z-index: 1; width: 100%; }
-.perspective { width: calc(100% - 80px); perspective: 1200px; }
-.card { width: 100%; transform-origin: center center; }
+.figure { width: 100%; max-width: 1024px; }
+.perspective { position: relative; width: 100%; perspective: 1200px; }
+.card { width: 100%; aspect-ratio: 8 / 5; transform-origin: center center; }
+.caption { margin-top: 32px; color: var(--landing-muted, #a3a3a3); text-align: center; font-size: 14px; line-height: 20px; }
 
 @media (max-width: 768px) {
   .container { gap: 24px; }
-  .perspective { width: 100%; }
+  .caption { margin-top: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

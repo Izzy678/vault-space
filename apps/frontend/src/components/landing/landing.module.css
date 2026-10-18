@@ -87,12 +87,10 @@
 .heroNote { font-size: 14px; line-height: 20px; color: var(--landing-muted); }
 
 /* A real desktop capture, framed without changing the application layout. */
-.previewFigure { width: min(1280px, 100%); }
-.productCapture { display: block; overflow: hidden; border: 1px solid rgb(255 255 255 / 10%); border-radius: var(--landing-panel-radius); background: var(--landing-surface); box-shadow: 0 24px 80px rgb(0 0 0 / 24%); }
-.productCaptureImage { display: block; width: 100%; height: auto; }
+.productCapture { display: block; height: 100%; overflow: hidden; border: 1px solid rgb(255 255 255 / 10%); border-radius: var(--landing-panel-radius); background: var(--landing-surface); box-shadow: 0 24px 80px rgb(0 0 0 / 24%); }
+.productCaptureImage { display: block; width: 100%; height: 100%; object-fit: contain; }
 .icon { display: inline-flex; flex-shrink: 0; color: var(--landing-muted); }
 .icon svg { width: 32px; height: 32px; }
-.previewFigure figcaption { margin-top: var(--space-8); color: var(--landing-muted); text-align: center; font-size: 14px; line-height: 20px; }
 
 .capabilities { padding: var(--space-16) 0; }
 .capabilityGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-16); }
@@ -177,7 +175,6 @@
   .heroActions { flex-direction: column; gap: var(--space-6); }
   .heroNote { max-width: 285px; }
   .desktopBreak { display: none; }
-  .previewFigure figcaption { margin-top: var(--space-6); }
   .capabilities { padding: var(--space-16) 0 var(--space-6); }
   .capabilityGrid, .featureGrid, .securityMethods, .passphrase { grid-template-columns: 1fr; }
   .capabilityGrid { gap: var(--space-8); }
