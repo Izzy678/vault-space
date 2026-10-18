@@ -37,7 +37,13 @@ export function LandingContent() {
           <div className={`${styles.container} ${styles.capabilityGrid}`}>
             {capabilities.map(([title, body], index) => {
               const Icon = capabilityIcons[index];
-              return <div key={title} className={styles.capabilityCard} data-reveal><Icon className={styles.capabilityIcon} size={24} strokeWidth={1.5} aria-hidden="true" /><h2>{title}</h2><p>{body}</p></div>;
+              return (
+                <div key={title} className={styles.capabilityCard} data-reveal>
+                  <span className={styles.capabilityTile} aria-hidden="true"><Icon className={styles.capabilityIcon} size={25} strokeWidth={1.5} /></span>
+                  <h2>{title}</h2>
+                  <p>{body}</p>
+                </div>
+              );
             })}
           </div>
         </section>
