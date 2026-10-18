@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { FolderOpen, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronDown, FolderOpen, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import { capabilities, faqs, features, uploadSteps } from "./content";
+import { capabilities, faqs, features } from "./content";
+import { EncryptionJourney } from "./EncryptionJourney";
 import { LandingBrand, LandingButton, LandingIcon } from "./LandingUi";
 import { WorkspacePreview } from "./WorkspacePreview";
 import styles from "./landing.module.css";
 
 const featureIcons = [FolderOpen, KeyRound, LockKeyhole, ShieldCheck];
+const capabilityIcons = [LockKeyhole, KeyRound, ShieldCheck];
 
 async function CopyrightYear() {
   "use cache";
@@ -19,11 +21,11 @@ export function LandingContent() {
       <main id="main-content">
         <section className={styles.hero} aria-labelledby="hero-title">
           <ContainerScroll titleComponent={<div className={styles.heroCopy}>
-            <h1 id="hero-title">Your files.<br />Protected at every step.</h1>
+            <h1 id="hero-title"><span className={styles.heroLead}>Your files.</span><span className={styles.heroEmphasis}>Protected at every step.</span></h1>
             <p className={styles.heroDescription}>Secure cloud storage with browser-side file encryption,<br className={styles.desktopBreak} /> separate key protection, and verified retrieval.</p>
             <div className={styles.heroActions}>
               <LandingButton href="/register">Create account</LandingButton>
-              <LandingButton href="#how-it-works" secondary>See how it works</LandingButton>
+              <LandingButton href="#how-it-works" secondary className={styles.heroSecondary}>See how it works <ArrowRight size={18} aria-hidden="true" /></LandingButton>
             </div>
             <p className={styles.heroNote}>AES-256-GCM file encryption · RSA-OAEP key protection</p>
           </div>}>
@@ -33,7 +35,10 @@ export function LandingContent() {
 
         <section className={styles.capabilities} aria-label="Core file protection">
           <div className={`${styles.container} ${styles.capabilityGrid}`}>
-            {capabilities.map(([title, body]) => <div key={title} data-reveal><h2>{title}</h2><p>{body}</p></div>)}
+            {capabilities.map(([title, body], index) => {
+              const Icon = capabilityIcons[index];
+              return <div key={title} className={styles.capabilityCard} data-reveal><Icon className={styles.capabilityIcon} size={24} strokeWidth={1.5} aria-hidden="true" /><h2>{title}</h2><p>{body}</p></div>;
+            })}
           </div>
         </section>
 
@@ -67,13 +72,7 @@ export function LandingContent() {
               <h2 id="workflow-title">From device to cloud.</h2>
               <p>Your browser handles encryption. The system stores the protected result for authorised retrieval.</p>
             </div>
-            <ol className={styles.workflow}>
-              {uploadSteps.map((step) => <li key={step.title} data-reveal><LandingIcon name={step.icon} /><h3>{step.title}</h3><p>{step.body}</p></li>)}
-            </ol>
-            <div className={styles.retrieval} data-reveal>
-              <h3>Retrieve with the same care.</h3>
-              <p>After access is checked, your unlocked vault key recovers the file key in your browser. AES-GCM decrypts the content and checks integrity before the original file is returned.</p>
-            </div>
+            <EncryptionJourney />
           </div>
         </section>
 
@@ -106,7 +105,7 @@ export function LandingContent() {
           <div className={styles.container}>
             <div className={styles.sectionHeading} data-reveal><h2 id="faq-title">Before you make space.</h2><p>A few practical details about files, keys, and your vault.</p></div>
             <div className={styles.faqList}>
-              {faqs.map(([question, answer]) => <details key={question} className={styles.faqItem} open data-reveal><summary>{question}</summary><p>{answer}</p></details>)}
+              {faqs.map(([question, answer], index) => <details key={question} className={styles.faqItem} open={index === 0} data-reveal><summary>{question}<ChevronDown size={18} aria-hidden="true" /></summary><p>{answer}</p></details>)}
             </div>
           </div>
         </section>
