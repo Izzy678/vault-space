@@ -141,7 +141,7 @@ export function ShareModal({
       <DialogContent
         showCloseButton
         className="z-[70] gap-0 overflow-visible p-0 sm:max-w-[440px]"
-        overlayClassName="z-[70] bg-black/40 supports-backdrop-filter:backdrop-blur-[2px]"
+        overlayClassName="z-[70] bg-[var(--app-overlay)] supports-backdrop-filter:backdrop-blur-[2px]"
       >
         <DialogHeader className="gap-1 border-b border-border px-5 py-4 text-left">
           <DialogTitle className="text-[17px] font-semibold tracking-tight">
@@ -181,6 +181,7 @@ export function ShareModal({
                       className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
                       style={{
                         background: `oklch(0.9 0.05 ${selected.hue})`,
+                        color: "var(--app-avatar-text)",
                       }}
                     >
                       {contactInitials(selected.name)}
@@ -253,6 +254,7 @@ export function ShareModal({
                                 className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
                                 style={{
                                   background: `oklch(0.9 0.05 ${c.hue})`,
+                                  color: "var(--app-avatar-text)",
                                 }}
                               >
                                 {contactInitials(c.name)}
@@ -263,7 +265,7 @@ export function ShareModal({
                                     {c.name}
                                   </span>
                                   {c.verified ? (
-                                    <span className="shrink-0 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                    <span className="shrink-0 rounded-md bg-app-success-soft px-1.5 py-0.5 text-[10px] font-semibold text-app-success">
                                       Verified
                                     </span>
                                   ) : null}
@@ -305,7 +307,7 @@ export function ShareModal({
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           {toast ? (
-            <p className="text-sm text-emerald-700">{toast}</p>
+            <p className="text-sm text-app-success">{toast}</p>
           ) : null}
 
           <div>

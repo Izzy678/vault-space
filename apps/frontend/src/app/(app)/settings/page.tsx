@@ -311,7 +311,7 @@ export default function SettingsPage() {
                 disabled={twofaBusy}
                 onClick={() => void onToggleTwofa()}
                 className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50 ${
-                  twofa ? "bg-emerald-500" : "bg-app-border"
+                  twofa ? "bg-app-success" : "bg-app-border"
                 }`}
               >
                 <span
@@ -406,7 +406,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={twofaBusy}
-                    className="rounded-[10px] border border-red-200 px-4 py-2 text-xs font-semibold text-app-danger hover:bg-app-danger-soft disabled:opacity-60"
+                    className="rounded-[10px] border border-app-danger-border px-4 py-2 text-xs font-semibold text-app-danger hover:bg-app-danger-soft disabled:opacity-60"
                   >
                     {twofaBusy ? "Disabling…" : "Disable 2FA"}
                   </button>
@@ -415,15 +415,15 @@ export default function SettingsPage() {
             ) : null}
 
             {recoveryCodes ? (
-              <div className="mt-4 space-y-3 rounded-[12px] border border-amber-200 bg-amber-50 p-4">
-                <p className="text-sm font-medium text-amber-950">
+              <div className="mt-4 space-y-3 rounded-[12px] border border-app-warning-border bg-app-warning-soft p-4">
+                <p className="text-sm font-medium text-app-warning">
                   Save these recovery codes
                 </p>
-                <p className="text-[13px] text-amber-900/80">
+                <p className="text-[13px] text-app-warning/80">
                   Each code works once if you lose your authenticator. Store
                   them offline — they won’t be shown again.
                 </p>
-                <ul className="grid grid-cols-2 gap-2 font-mono text-[13px] text-amber-950">
+                <ul className="grid grid-cols-2 gap-2 font-mono text-[13px] text-app-warning">
                   {recoveryCodes.map((c) => (
                     <li key={c}>{c}</li>
                   ))}
@@ -434,14 +434,14 @@ export default function SettingsPage() {
                     void navigator.clipboard.writeText(recoveryCodes.join("\n"));
                     say("Recovery codes copied");
                   }}
-                  className="rounded-[10px] border border-amber-300 bg-app-surface px-3 py-1.5 text-xs font-semibold text-amber-950"
+                  className="rounded-[10px] border border-app-warning-border bg-app-surface px-3 py-1.5 text-xs font-semibold text-app-warning"
                 >
                   Copy codes
                 </button>
                 <button
                   type="button"
                   onClick={() => setRecoveryCodes(null)}
-                  className="ml-2 text-xs font-semibold text-amber-900/70 hover:text-amber-950"
+                  className="ml-2 text-xs font-semibold text-app-warning/70 hover:text-app-warning"
                 >
                   Done
                 </button>
@@ -452,7 +452,7 @@ export default function SettingsPage() {
           <div className="border-b border-app-border py-4">
             <p className="text-sm font-medium text-app-text">Appearance</p>
             <p className="mt-0.5 text-[13px] text-app-muted">
-              Switch between light and dark UI for the app and landing pages.
+              Switch between light and dark appearance for your workspace.
             </p>
             <div className="mt-3 flex flex-wrap gap-1 rounded-[10px] border border-app-border p-1">
               {(
@@ -639,7 +639,7 @@ export default function SettingsPage() {
                   <p className="text-[13px] text-app-muted">{s.meta}</p>
                 </div>
                 {s.current ? (
-                  <span className="text-xs font-semibold text-emerald-600">
+                  <span className="text-xs font-semibold text-app-success">
                     This device
                   </span>
                 ) : (
@@ -677,7 +677,7 @@ export default function SettingsPage() {
             onClick={() =>
               say("Account deletion requires confirming your passphrase")
             }
-            className="rounded-[10px] border border-red-200 px-4 py-2 text-sm font-medium text-app-danger hover:bg-app-danger-soft"
+            className="rounded-[10px] border border-app-danger-border px-4 py-2 text-sm font-medium text-app-danger hover:bg-app-danger-soft"
           >
             Delete account
           </button>

@@ -5,7 +5,7 @@ type IconProps = SVGProps<SVGSVGElement>;
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#1e3a5f] text-white ${className ?? ""}`}
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--app-logo-bg)] text-[var(--app-logo-fg)] ${className ?? ""}`}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
         <path

@@ -1,4 +1,4 @@
-/* Shared foundations for the public landing and authentication pages. */
+/* Shared foundations for the landing, authentication, and application themes. */
 .theme {
   --landing-bg: #08090a;
   --landing-surface: #111213;

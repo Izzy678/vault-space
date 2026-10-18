@@ -137,8 +137,8 @@ export function FileDetailDrawer({
             </div>
           </SheetHeader>
 
-          <div className="mx-5 flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2.5 text-[13px] text-emerald-700 dark:text-emerald-300">
-            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-emerald-500" />
+          <div className="mx-5 flex items-center gap-2 rounded-lg bg-app-success-soft px-3 py-2.5 text-[13px] text-app-success">
+            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-app-success" />
             Encrypted end-to-end · AES-256-GCM
           </div>
 
@@ -224,7 +224,7 @@ export function FileDetailDrawer({
                 variant="link"
                 size="sm"
                 onClick={() => setTechOpen((v) => !v)}
-                className="h-auto px-0 text-[12px] text-[oklch(0.5_0.12_165)]"
+                className="h-auto px-0 text-[12px] text-app-success"
               >
                 {techOpen ? "Hide details" : "Show details"}
               </Button>

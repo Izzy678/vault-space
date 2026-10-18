@@ -18,12 +18,12 @@ const FILTERS: { id: string; label: string }[] = [
 ];
 
 const DOT: Record<ActivityType, string> = {
-  upload: "bg-emerald-400",
-  share: "bg-blue-400",
-  download: "bg-slate-400",
-  key: "bg-amber-400",
-  auth: "bg-slate-500",
-  delete: "bg-red-400",
+  upload: "bg-app-success",
+  share: "bg-app-cat-images",
+  download: "bg-app-muted",
+  key: "bg-app-warning",
+  auth: "bg-app-subtle",
+  delete: "bg-app-danger",
 };
 
 function formatWhen(iso: string) {

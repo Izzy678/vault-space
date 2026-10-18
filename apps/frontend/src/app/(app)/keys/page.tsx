@@ -197,7 +197,7 @@ export default function KeysPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app-border px-5 py-4">
             <div className="flex items-center gap-2.5 font-medium text-app-text">
               Your keypair
-              <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+              <span className="rounded-md bg-app-success-soft px-2 py-0.5 text-[11px] font-medium text-app-success">
                 Active
               </span>
             </div>
@@ -229,7 +229,7 @@ export default function KeysPage() {
                   setRotatePass("");
                   setRotateModal(true);
                 }}
-                className="rounded-[8px] border border-amber-300 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-50"
+                className="rounded-[8px] border border-app-warning-border px-3 py-1.5 text-xs font-medium text-app-warning hover:bg-app-warning-soft"
               >
                 Rotate keypair
               </button>
@@ -326,6 +326,7 @@ export default function KeysPage() {
                       className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-app-text"
                       style={{
                         background: `oklch(0.88 0.06 ${c.hue})`,
+                        color: "var(--app-avatar-text)",
                       }}
                     >
                       {contactInitials(c.name)}
@@ -346,7 +347,7 @@ export default function KeysPage() {
                       onClick={() => void onVerify(c)}
                       className={`rounded-[10px] border px-3 py-1.5 text-xs font-semibold ${
                         c.verified
-                          ? "border-emerald-200 text-emerald-700"
+                          ? "border-app-success-border text-app-success"
                           : "border-app-border text-app-muted hover:bg-app-bg"
                       }`}
                     >
@@ -458,7 +459,7 @@ export default function KeysPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="rounded-[10px] border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100 disabled:opacity-60"
+                  className="rounded-[10px] border border-app-warning-border bg-app-warning-soft px-4 py-2 text-sm font-semibold text-app-warning hover:bg-app-warning/15 disabled:opacity-60"
                 >
                   {busy ? "Rotating…" : "Rotate keypair"}
                 </button>
@@ -481,7 +482,7 @@ function Modal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--app-overlay)] p-4"
       role="presentation"
       onClick={onClose}
     >
