@@ -2,6 +2,7 @@
   "name": "secure-cloud-storage-system",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Secure cloud storage system monorepo",
   "workspaces": [
     "apps/*"

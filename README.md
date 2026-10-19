@@ -223,6 +223,6 @@ Workspace package scripts also work from `apps/backend` and `apps/frontend`, for
 
 ## License
 
-No license file is currently provided. The backend package is marked `UNLICENSED`.
+The project code is licensed under the MIT License. See [LICENSE](LICENSE).
 
-The Inter font shipped with the web app is under the SIL Open Font License. See [apps/frontend/src/components/landing/fonts/OFL.txt](apps/frontend/src/components/landing/fonts/OFL.txt).
+The Inter font shipped with the web app stays under the SIL Open Font License. See [apps/frontend/src/components/landing/fonts/OFL.txt](apps/frontend/src/components/landing/fonts/OFL.txt).
