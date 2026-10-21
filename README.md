@@ -106,6 +106,7 @@ After unlock, the browser can keep the unwrapped private key in `sessionStorage`
 | `apps/backend/src/shares`      | Per-recipient wrapped file keys.                              |
 | `apps/backend/src/storage`     | S3-compatible object storage adapter.                         |
 | `apps/backend/.env.example`    | Environment template. Copy this to `apps/backend/.env`.       |
+| `vercel.json`                  | Deploys the API and web app as one Vercel project.            |
 
 
 Useful pages: `/` (landing), `/register`, `/login`, `/security` (vault setup or unlock), `/dashboard`, `/files`, `/keys`, `/activity`, and `/settings`.
@@ -135,7 +136,7 @@ cp apps/backend/.env.example apps/backend/.env
 
 Edit `apps/backend/.env` with your database URL, JWT secret, and object-storage credentials. See [Configuration](#configuration). With `TYPEORM_SYNCHRONIZE=true`, the API creates or updates tables when it starts. There is no separate migration command.
 
-The web app calls `http://localhost:3001` unless you set `NEXT_PUBLIC_API_URL`. To override it, create `apps/frontend/.env.local`:
+The web app calls `http://localhost:3001/api` in development. On Vercel, leave `NEXT_PUBLIC_API_URL` unset so the browser calls `/api` on the same domain. To point local development at another API origin, create `apps/frontend/.env.local` with the origin only (no `/api` path):
 
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:3001
@@ -191,7 +192,7 @@ Backend settings are read from `apps/backend/.env`. Do not commit that file.
 
 | Setting               | Purpose                          | Required when | Default                 | Safe example            |
 | --------------------- | -------------------------------- | ------------- | ----------------------- | ----------------------- |
-| `NEXT_PUBLIC_API_URL` | API base URL used by the browser | Optional      | `http://localhost:3001` | `http://localhost:3001` |
+| `NEXT_PUBLIC_API_URL` | API origin used by the browser. The app adds `/api`. Leave unset on Vercel. | Optional      | `http://localhost:3001` in development; same origin in production | `http://localhost:3001` |
 
 
 Set `TYPEORM_SYNCHRONIZE` only on a development database. It can change the schema automatically.

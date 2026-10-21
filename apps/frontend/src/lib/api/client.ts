@@ -1,4 +1,15 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+/** Origin only. The `/api` prefix is added below so it matches the Nest global prefix and the Vercel rewrite. */
+function apiOrigin(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "development") return "http://localhost:3001";
+  return "";
+}
+
+function apiUrl(path: string): string {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${apiOrigin()}/api${normalized}`;
+}
 
 export class ApiError extends Error {
   constructor(
@@ -32,7 +43,7 @@ export async function apiJson<T>(
   options: RequestInit & { token?: string | null } = {},
 ): Promise<T> {
   const { token, headers, ...rest } = options;
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(apiUrl(path), {
     ...rest,
     headers: {
       "Content-Type": "application/json",
@@ -50,7 +61,7 @@ export async function apiUpload<T>(
   form: FormData,
   token: string,
 ): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(apiUrl(path), {
     method: "POST",
     headers: authHeaders(token),
     body: form,
@@ -63,11 +74,9 @@ export async function apiBinary(
   path: string,
   token: string,
 ): Promise<ArrayBuffer> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(apiUrl(path), {
     headers: authHeaders(token),
   });
   if (!res.ok) await parseError(res);
   return res.arrayBuffer();
 }
-
-export { API_URL };
