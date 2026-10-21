@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ChevronDown, FolderOpen, LockKeyhole } from "lucide-react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import { faqs, features } from "./content";
-import { EncryptionJourney } from "./EncryptionJourney";
+import { faqs, features, uploadSteps } from "./content";
 import { LandingBrand, LandingButton } from "./LandingUi";
 import { WorkspacePreview } from "./WorkspacePreview";
 import styles from "./landing.module.css";
@@ -38,7 +37,16 @@ export function LandingContent() {
               <h2 id="workflow-title">From device to cloud.</h2>
               <p>Your browser encrypts the file. VaultSpace stores the encrypted result, and you retrieve it after unlocking the vault.</p>
             </div>
-            <EncryptionJourney />
+            <ol className={styles.workflow}>
+              {uploadSteps.map(([title, body], index) => (
+                <li key={title}>
+                  <span>0{index + 1}</span>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </li>
+              ))}
+            </ol>
+            <p className={styles.workflowNote}>Unlocking the vault recovers the key. AES-GCM checks the file before returning it.</p>
           </div>
         </section>
 

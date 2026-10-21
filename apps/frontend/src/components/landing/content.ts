@@ -4,10 +4,10 @@ export const features = [
 ] as const;
 
 export const uploadSteps = [
-  { title: "Select your file", body: "Choose a file from your device. VaultSpace generates a fresh AES key.", icon: "folder" },
-  { title: "Encrypt the content", body: "AES-256-GCM encrypts the file in your browser and produces an authentication tag.", icon: "lock" },
-  { title: "Protect the file key", body: "Your RSA public key protects the AES key using RSA-OAEP.", icon: "key" },
-  { title: "Store the protected result", body: "The encrypted file, protected key, and required metadata are uploaded for storage.", icon: "upload" },
+  ["Select", "A fresh AES key is created for this file."],
+  ["Encrypt", "AES-256-GCM encrypts it in the browser and produces an authentication tag."],
+  ["Wrap the key", "Your public key protects that key with RSA-OAEP."],
+  ["Store", "The encrypted file, wrapped key, and metadata are uploaded."],
 ] as const;
 
 export const faqs = [

@@ -85,6 +85,11 @@
 .sectionHeading h2, .finalCta h2 { font-size: 48px; font-weight: 500; letter-spacing: -0.02em; line-height: 58px; text-wrap: balance; }
 .sectionHeading > p { max-width: 700px; color: var(--landing-muted); }
 .page h3 { font-size: 24px; font-weight: 500; line-height: 32px; }
+.workflow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-10); margin: 0; padding: 0; list-style: none; }
+.workflow li { display: flex; flex-direction: column; align-items: start; gap: var(--space-4); padding-top: var(--space-6); border-top: 1px solid rgb(255 255 255 / 12%); }
+.workflow span { color: var(--landing-subtle); font-size: 12px; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+.workflow p { color: var(--landing-muted); font-size: 15px; line-height: 24px; text-wrap: pretty; }
+.workflowNote { max-width: 720px; margin-top: var(--space-12); color: var(--landing-muted); text-wrap: pretty; }
 .featureGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-20); }
 .featureItem { --feature-accent: var(--landing-blue); display: flex; flex-direction: column; align-items: start; gap: var(--space-4); padding: var(--space-10) 0; border-top: 1px solid rgb(255 255 255 / 12%); }
 .featureItem:nth-child(2) { --feature-accent: var(--landing-purple); }
@@ -141,6 +146,7 @@
   .mobileMenu > a:hover { background: var(--landing-raised); }
   .mobileMenu > div { display: flex; gap: var(--space-4); padding-top: var(--space-4); }
   .mobileMenu .smallButton { min-height: 44px; }
+  .workflow { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 600px) {
   .header { top: 12px; width: calc(100% - 32px); margin-top: 12px; }
@@ -154,6 +160,7 @@
   .heroActions { flex-direction: column; gap: 8px; margin-top: 8px; }
   .heroNote { max-width: none; font-size: 14px; line-height: 21px; }
   .productCaptureImage { object-fit: cover; object-position: 34% 0; transform: scale(1.72); transform-origin: 34% 0; }
+  .workflow { grid-template-columns: 1fr; }
   .featureGrid { grid-template-columns: 1fr; }
   .section { padding: var(--space-20) 0 var(--space-6); }
   .sectionHeading { gap: var(--space-6); margin-bottom: var(--space-10); }
