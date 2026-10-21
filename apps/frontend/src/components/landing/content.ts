@@ -1,8 +1,3 @@
-export const features = [
-  ["A file list you already understand", "Upload documents, find what you need, and retrieve files from a familiar file list."],
-  ["Unlock the vault before opening a file", "Sign in, then unlock the vault. Encryption and decryption happen in the browser after that."],
-] as const;
-
 export const uploadSteps = [
   ["Select", "A fresh AES key is created for this file."],
   ["Encrypt", "AES-256-GCM encrypts it in the browser and produces an authentication tag."],

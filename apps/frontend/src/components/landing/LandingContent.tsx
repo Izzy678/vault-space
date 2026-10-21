@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, ChevronDown, FolderOpen, LockKeyhole } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import { faqs, features, uploadSteps } from "./content";
+import { faqs, uploadSteps } from "./content";
 import { LandingBrand, LandingButton } from "./LandingUi";
 import { WorkspacePreview } from "./WorkspacePreview";
 import styles from "./landing.module.css";
-
-const featureIcons = [FolderOpen, LockKeyhole];
 
 async function CopyrightYear() {
   "use cache";
@@ -55,30 +53,6 @@ export function LandingContent() {
             <div className={styles.sectionHeading} data-reveal>
               <h2 id="security-title">Your vault has its own secret.</h2>
               <p>Your vault passphrase unlocks the protected private key in your browser. It serves a different purpose from your login password. Keep it safe: a password reset does not recover your vault key.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="features" className={styles.section} aria-labelledby="features-title">
-          <div className={styles.container}>
-            <div className={styles.sectionHeading} data-reveal>
-              <h2 id="features-title">Familiar storage.<br />Visible protection.</h2>
-              <p>Upload, find, and retrieve files from a workspace that stays locked until you open the vault.</p>
-            </div>
-            <div className={styles.featureGrid}>
-              {features.map(([title, body], index) => {
-                const Icon = featureIcons[index];
-                return (
-                  <article key={title} className={styles.featureItem} data-reveal>
-                    <div className={styles.featureTop} aria-hidden="true">
-                      <Icon size={28} strokeWidth={1.5} />
-                      <span>0{index + 1}</span>
-                    </div>
-                    <h3>{title}</h3>
-                    <p>{body}</p>
-                  </article>
-                );
-              })}
             </div>
           </div>
         </section>

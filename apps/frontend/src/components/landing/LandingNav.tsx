@@ -7,7 +7,6 @@ import styles from "./landing.module.css";
 const links = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Security", href: "#security" },
-  { label: "Features", href: "#features" },
 ];
 
 export function LandingNav() {
