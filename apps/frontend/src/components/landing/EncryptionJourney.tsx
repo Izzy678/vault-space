@@ -2,7 +2,7 @@
 
 import { useId, useState, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDown, ArrowRight, Check, Cloud, FileText, KeyRound, Laptop, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, Cloud, FileText, KeyRound, Laptop, LockKeyhole, ShieldCheck } from "lucide-react";
 import { uploadSteps } from "./content";
 import styles from "./encryption-journey.module.css";
 
@@ -44,10 +44,7 @@ export function EncryptionJourney() {
         <div id={panelId} className={styles.visual} style={{ "--journey-accent": stage.color } as CSSProperties} data-stage={active}>
           <div className={styles.visualHeader}><span className={styles.browserLabel}><LockKeyhole size={13} aria-hidden="true" /> Inside your browser</span><span className={styles.stageCount}>0{active + 1} <span>/ 04</span></span></div>
           <div className={styles.diagram} aria-hidden="true">
-            <div className={styles.orbit} />
-            <div className={styles.orbitInner} />
             <div className={styles.connection} />
-            <motion.div key={`packet-${active}`} className={styles.packet} initial={{ left: "15%", opacity: 0 }} animate={{ left: "85%", opacity: [0, 1, 1, 0] }} transition={{ duration: reduceMotion ? 0 : 1.1, ease: "easeInOut" }} />
             <div className={`${styles.endpoint} ${styles.device}`}><span><Laptop size={25} strokeWidth={1.4} /></span><small>Your device</small></div>
             <div className={styles.fileStack}>
               <div className={styles.fileBack} />
@@ -73,7 +70,6 @@ export function EncryptionJourney() {
       <div className={styles.retrieval}>
         <span className={styles.retrievalIcon}><ShieldCheck size={24} strokeWidth={1.5} aria-hidden="true" /></span>
         <div><h3>Retrieve with the same care.</h3><p>Unlock your vault to recover the file key in your browser. AES-GCM decrypts the content and checks its integrity before returning the original file.</p></div>
-        <ArrowDown className={styles.returnArrow} size={20} aria-hidden="true" />
       </div>
     </div>
   );

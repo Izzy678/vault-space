@@ -2,7 +2,7 @@
 
 import { useRef, useSyncExternalStore, type ReactNode } from "react";
 import {
-  motion, useReducedMotion, useScroll, useTransform, type MotionValue,
+  motion, useScroll, useTransform, type MotionValue,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import styles from "./container-scroll-animation.module.css";
@@ -16,6 +16,15 @@ function subscribeToViewport(callback: () => void) {
 const getMobileSnapshot = () => window.matchMedia(mobileQuery).matches;
 const getServerSnapshot = () => false;
 
+const motionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeToMotion(callback: () => void) {
+  const query = window.matchMedia(motionQuery);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+const getMotionSnapshot = () => window.matchMedia(motionQuery).matches;
+const getMotionServerSnapshot = () => false;
+
 export function ContainerScroll({ titleComponent, children, caption, className }: {
   titleComponent: ReactNode;
   children: ReactNode;
@@ -24,7 +33,7 @@ export function ContainerScroll({ titleComponent, children, caption, className }
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isMobile = useSyncExternalStore(subscribeToViewport, getMobileSnapshot, getServerSnapshot);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSyncExternalStore(subscribeToMotion, getMotionSnapshot, getMotionServerSnapshot);
   const { scrollYProgress } = useScroll({
     target: cardRef,
     // The card is upright when its bottom reaches the viewport's bottom.

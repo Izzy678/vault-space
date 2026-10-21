@@ -5,9 +5,9 @@ import { LandingBrand, LandingButton } from "./LandingUi";
 import styles from "./landing.module.css";
 
 const links = [
-  { label: "Features", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
   { label: "Security", href: "#security" },
+  { label: "Features", href: "#features" },
 ];
 
 export function LandingNav() {
@@ -26,7 +26,7 @@ export function LandingNav() {
     function onPointerDown(event: PointerEvent) {
       if (event.target instanceof Node && !header.current?.contains(event.target)) setOpen(false);
     }
-    const desktop = window.matchMedia("(min-width: 960px)");
+    const desktop = window.matchMedia("(min-width: 900px)");
     const onResize = () => { if (desktop.matches) setOpen(false); };
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("pointerdown", onPointerDown);
