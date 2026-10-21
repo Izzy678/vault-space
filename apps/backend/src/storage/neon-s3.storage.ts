@@ -38,8 +38,13 @@ export class NeonS3StorageAdapter implements StorageAdapter, OnModuleInit {
   }
 
   async onModuleInit() {
-    await this.ensureBucket();
-    this.logger.log(`Neon S3 ready (bucket=${this.bucket})`);
+    try {
+      await this.ensureBucket();
+      this.logger.log(`Neon S3 ready (bucket=${this.bucket})`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Object storage is not ready: ${message}`);
+    }
   }
 
   private async ensureBucket() {

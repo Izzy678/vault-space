@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
 import { UsersService } from '../users/users.service';
 import { ActivityService } from '../activity/activity.service';
 import { RegisterDto } from './dto/register.dto';
@@ -22,6 +21,7 @@ import {
   verifyTotpCode,
 } from './totp.util';
 import type { User } from '../users/user.entity';
+import { hashPassword, verifyPassword } from './password-hash';
 
 @Injectable()
 export class AuthService {
@@ -42,9 +42,7 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const passwordHash = await argon2.hash(dto.password, {
-      type: argon2.argon2id,
-    });
+    const passwordHash = await hashPassword(dto.password);
     const user = await this.usersService.create(
       dto.email,
       passwordHash,
@@ -59,7 +57,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const valid = await argon2.verify(user.passwordHash, dto.password);
+    const valid = await verifyPassword(user.passwordHash, dto.password);
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -147,7 +145,7 @@ export class AuthService {
     const recoveryCodes = generateRecoveryCodes(8);
     const hashes = await Promise.all(
       recoveryCodes.map((c) =>
-        argon2.hash(c.toUpperCase(), { type: argon2.argon2id }),
+        hashPassword(c.toUpperCase()),
       ),
     );
     user.totpEnabled = true;
@@ -188,7 +186,7 @@ export class AuthService {
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.requireUser(userId);
 
-    const valid = await argon2.verify(user.passwordHash, dto.currentPassword);
+    const valid = await verifyPassword(user.passwordHash, dto.currentPassword);
     if (!valid) {
       throw new UnauthorizedException('Current password is incorrect');
     }
@@ -213,9 +211,7 @@ export class AuthService {
       }
     }
 
-    user.passwordHash = await argon2.hash(dto.newPassword, {
-      type: argon2.argon2id,
-    });
+    user.passwordHash = await hashPassword(dto.newPassword);
     await this.usersService.save(user);
 
     this.activityService.log(userId, 'auth', 'Account password changed');
@@ -241,7 +237,7 @@ export class AuthService {
       const hash = hashes[i];
       if (!hash) continue;
       try {
-        if (await argon2.verify(hash, cleaned)) {
+        if (await verifyPassword(hash, cleaned)) {
           hashes.splice(i, 1);
           user.totpRecoveryHashes = JSON.stringify(hashes);
           await this.usersService.save(user);

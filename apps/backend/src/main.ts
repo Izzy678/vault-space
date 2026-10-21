@@ -1,6 +1,12 @@
+import { createServer } from 'node:http';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+
+function listenPort(): number {
+  const value = Number(process.env.PORT ?? 3001);
+  return Number.isFinite(value) && value > 0 ? value : 3001;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,7 +32,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(listenPort(), '0.0.0.0');
 }
 
 /** Local dev is often opened as 127.0.0.1 or a LAN IP, not only localhost. */
@@ -55,4 +61,16 @@ function isAllowedCorsOrigin(origin: string | undefined): boolean {
   }
 }
 
-bootstrap();
+bootstrap().catch((err: unknown) => {
+  const message = startupError(err);
+  console.error(err);
+  createServer((_req, res) => {
+    res.writeHead(500, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ message }));
+  }).listen(listenPort(), '0.0.0.0');
+});
+
+function startupError(err: unknown): string {
+  const message = err instanceof Error ? err.message : 'The API failed to start';
+  return message.replace(/postgres(?:ql)?:\/\/\S+/gi, 'postgresql://***');
+}
