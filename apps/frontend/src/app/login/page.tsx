@@ -7,7 +7,6 @@ import {
   AuthField,
   AuthSecretField,
   AuthShell,
-  AuthNotice,
   authInputClass,
   authPrimaryBtnClass,
   authLinkClass,
@@ -114,7 +113,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Sign in"
-      subtitle="Welcome back. Your private workspace awaits."
+      subtitle="The vault passphrase comes after this."
       footer={
         <p>
           New to VaultSpace?{" "}
@@ -155,7 +154,6 @@ export default function LoginPage() {
         <button type="submit" disabled={busy} className={authPrimaryBtnClass}>
           {busy ? "Signing in…" : "Sign in"}
         </button>
-        <AuthNotice>You’ll unlock your vault after signing in.</AuthNotice>
       </form>
     </AuthShell>
   );

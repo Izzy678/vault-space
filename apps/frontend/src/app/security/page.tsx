@@ -88,7 +88,7 @@ export default function SecurityPage() {
       subtitle={
         mode === "setup"
           ? "Give your vault its own passphrase, separate from your login password."
-          : "One more step. Enter your vault passphrase to access your encrypted files."
+          : "Enter your vault passphrase to open your encrypted files."
       }
       footer={
         <div className="flex flex-wrap items-center justify-between gap-3">

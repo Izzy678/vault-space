@@ -7,7 +7,6 @@ import {
   AuthField,
   AuthSecretField,
   AuthShell,
-  AuthNotice,
   authInputClass,
   authPrimaryBtnClass,
   authLinkClass,
@@ -60,7 +59,7 @@ export default function RegisterPage() {
     <AuthShell
       stage="register"
       title="Create an account"
-      subtitle="A private space for your files."
+      subtitle="This password signs you in. You will set a vault passphrase next."
       footer={
         <p>
           Already have an account?{" "}
@@ -127,7 +126,6 @@ export default function RegisterPage() {
         >
           {busy ? "Creating…" : "Create account"}
         </button>
-        <AuthNotice>Next, you’ll set a separate passphrase for your vault.</AuthNotice>
       </form>
     </AuthShell>
   );
