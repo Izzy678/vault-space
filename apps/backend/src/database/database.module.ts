@@ -15,9 +15,7 @@ import { FileShare } from '../shares/file-share.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const url =
-          config.get<string>('DATABASE_URL_POOLED') ??
-          config.get<string>('DATABASE_URL');
+        const url =  config.get<string>('DATABASE_URL');
 
         if (!url) {
           throw new Error('DATABASE_URL or DATABASE_URL_POOLED is required');
@@ -36,7 +34,7 @@ import { FileShare } from '../shares/file-share.entity';
             FileShare,
           ],
           synchronize: config.get<string>('TYPEORM_SYNCHRONIZE') === 'true',
-          ssl: url.includes('sslmode=require')
+          ssl: url.includes('sslmode=verify-full')
             ? { rejectUnauthorized: false }
             : undefined,
         };
