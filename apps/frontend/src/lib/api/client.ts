@@ -1,4 +1,4 @@
-/** Origin only. The `/api` prefix is added below so it matches the Nest global prefix and the Vercel rewrite. */
+/** Origin only, with no `/api` path. The prefix is added below to match the Nest global prefix. */
 function apiOrigin(): string {
   const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   if (configured) return configured;
